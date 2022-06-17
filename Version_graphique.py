@@ -219,10 +219,10 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 self.puuid = me['puuid']
 
                 # We search for the Summoner matches
-                self.my_matches = self.watcher.match.matchlist_by_puuid(self.my_region, self.puuid)
+                self.my_matches = self.watcher.match.matchlist_by_puuid(self.my_region, self.puuid,count= 100)
                 self.list.delete(0, END)
 
-                for i in range(1, 21):
+                for i in range(1, 101):
                     self.list.insert(END, f'{me["name"]} 🡺 Game {i}')
 
                 # Bind that allows user to interact with Listbox items by double clicking them
