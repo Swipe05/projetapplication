@@ -31,7 +31,6 @@ class Data_base:
 
 
     #create table
-    #kwargs = {"column's name":"data type"}
     # if data type is text ===> "VARCHAR(255)" 
     def create_table(self,table_name,  table_columns):
         #check if table exists
@@ -108,11 +107,62 @@ class Data_base:
             print(row)
         print("----------------------------------------------------------------------------------------------")
         return data
+    # args = selected columns
+    # on_clase example: ON TEST_TABLE.name=TEST_TABLE2.name
+    # ex: join('TEST_TABLE','TEST_TABLE2','TEST_TABLE.name=TEST_TABLE2.name',('TEST_TABLE.name','age','game'))
+    def join(self, table1, table2, on_clause, *args):
+        data = []
+        query = "SELECT " + ','.join(*args) + f" FROM {table1} INNER JOIN {table2} ON {on_clause};"
+        print(query)
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        for row in result:
+            data.append(row)
+            print(row)
+        return data
 
+    def drop_table(self, table_name):
+        #check if table exists
+        listOfTable = self.cursor.execute(f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
+        if listOfTable: #if listOfTable == []: 
+            print('Table existes')
+            return
+        query = f"DROP TABLE {table_name}"
+        self.cursor.execute(query)
+    # dict_change = {"column":"new_val"}
+    # Following is an example, which will update ADDRESS for a customer whose ID is 6.
+    # UPDATE COMPANY SET ADDRESS = 'Texas' WHERE ID = 6;
+    def update_data(self,tabel_name, condition, dict_change):
+        query = f"UPDATE {tabel_name} SET "
+        con = [f"{x}={y}" for x,y in dict_change.items()]
+        query += ','.join(con)
+        query += f" WHERE {condition} ;"
+        print(query)
+    '''
+    UPDATE table_name
+SET column1 = value1, column2 = value2...., columnN = valueN
+WHERE [condition];
+    '''  
+
+#######################################################################################################################
+'''
+PREDEFINED FUNCTIONS
+
+create_table(self,table_name,  table_columns)
+dinsert_data_with_columns_names(self,table_name, dict_data)
+insert_data_without_column_name(self, table_name, list_data)
+delete_row(self, table_name,condition)
+select_all_data(self, table_name)
+select_data_with_condition(self, table_name,condition ,*args)
+join(self, table1, table2, on_clause, *args)
+
+
+'''
+#######################################################################################################################
 
 lmht_db = Data_base()
-table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
-lmht_db.create_table("TEST_TABLE", table_column)
+## table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
+## lmht_db.create_table("TEST_TABLE", table_column)
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.0'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Esteban', 'age':'19', 'score':'19.5'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Leo', 'age':'30', 'score':'20.1'})
@@ -120,4 +170,12 @@ lmht_db.create_table("TEST_TABLE", table_column)
 # lmht_db.insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
 # lmht_db.delete_row("TEST_TABLE","name = 'Cong Khai'")
 # lmht_db.select_all_data("TEST_TABLE")
-print(lmht_db.select_data_with_condition("TEST_TABLE", " age = 19 ", ("name","age")))
+# print(lmht_db.select_data_with_condition("TEST_TABLE", " age = 19 ", ("name","age")))
+## table2_column = {'name':'varchar(255)', 'game':'varchar(255)', 'champ':'varchar(255)'}
+# lmht_db.create_table("TEST_TABLE2", table2_column)
+# lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Maxime', 'game':'LOL', 'champ':'Camille'})
+# lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Leo', 'game':'Valorant', 'champ':'Raze'})
+# lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Esteban', 'game':'Valorant', 'champ':'Yoru'})
+# lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Cong Khai', 'game':'LOL', 'champ':'Garen'})
+# print(lmht_db.join('TEST_TABLE','TEST_TABLE2','TEST_TABLE.name=TEST_TABLE2.name',('TEST_TABLE.name','age','game')))
+lmht_db.update_data("123","id>6" ,{"ADDRESS":'texas'})
