@@ -67,6 +67,7 @@ class Data_base:
         query += ''');'''
         print(query)
         self.cursor.execute(query)
+
     # insert values into the table by reordering the names of the columns 
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
     def insert_data_with_columns_names(self,table_name, dict_data):
@@ -83,6 +84,19 @@ class Data_base:
             self.sqliteConnection.commit()
         except sqlite3.Error as error:
             #print("error is  ",error)
+            pass
+
+    def insert_multi_row_with_column_name(self, table_name, dict_data):
+        try:
+            ele_dict = {}
+            list_columns = list(dict_data.keys())
+            list_value = list(dict_data.values())
+            for i in range(len(list_value[0])):
+                for j in range(len(list_columns)):
+                    ele_dict[list_columns[j]] = str(list_value[j][i])
+                self.insert_data_with_columns_names(table_name, ele_dict)
+        except sqlite3.Error as error:
+            print(error)
             pass
     #ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
     def insert_data_without_column_name(self, table_name, list_data):
@@ -183,6 +197,18 @@ class Data_base:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         lsi_t = self.cursor.fetchall()
         return lsi_t
+
+    def read_data_from_a_dict(self, dictionary, name = "summonername"):
+        list_keys = list(dictionary.keys())
+        list_keys.remove(name)
+        list_values = list(dictionary.values())
+        list_values.remove(dictionary.get(name))
+        tab_name = dictionary.get(name)
+        dictionary.pop(name)
+        self.create_table(tab_name, list_keys, "ID")
+        self.insert_multi_row_with_column_name(tab_name, dictionary)
+        # self.insert_data_with_columns_names(dictionary.get(name),dictionary)
+        # print(f'{list_keys} \n {list_values}')
     '''
     UPDATE table_name
 SET column1 = value1, column2 = value2...., columnN = valueN
