@@ -31,3 +31,6 @@ def insert_data_with_columns_names(table_name, dict_data):
     return query
 
 print(insert_data_with_columns_names("TEST-Table", {"STUDENT":"name","id":"113","hub":"bro"}))
+
+if type("123") == str:
+    print("string!")

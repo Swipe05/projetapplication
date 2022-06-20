@@ -31,7 +31,7 @@ class Data_base:
 
     #create table
     # if data type is text ===> "VARCHAR(255)" 
-    def create_table(self,table_name,  table_columns):
+    def create_table(self,table_name,  table_columns, primary_key=""):
         #check if table exists
         listOfTable = self.cursor.execute(f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
         if listOfTable: #if listOfTable == []: 
@@ -53,30 +53,49 @@ class Data_base:
                     count += 1
                 else:
                     query += f""" {element[0]}   {element[1]} """
-
+        if primary_key != "":
+            if type(primary_key) == list or type(primary_key)==tuple:
+                query += ", PRIMARY KEY ( "
+                for key in primary_key:
+                    if primary_key.index(key) == len(primary_key) - 1:
+                        query += f" {key} )  "
+                    else:
+                        query += f" {key}, "
+            if type(primary_key)==str:
+                query += f" , PRIMARY KEY ({primary_key})  " 
+        
         query += ''');'''
+        print(query)
         self.cursor.execute(query)
     # insert values into the table by reordering the names of the columns 
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
     def insert_data_with_columns_names(self,table_name, dict_data):
-        query = f'''INSERT INTO {table_name} ('''
-        list_key = []
-        list_value = []
-        for ele in dict_data.items():
-            list_key.append(ele[0])
-            list_value.append('"'+ele[1]+'"')
-        query = query + ",".join(list_key) + ') VALUES ('  + ",".join(list_value) + ");"
-        print(query)
-        self.cursor.execute(query)
-        self.sqliteConnection.commit()
+        try: 
+            query = f'''INSERT INTO {table_name} ('''
+            list_key = []
+            list_value = []
+            for ele in dict_data.items():
+                list_key.append(ele[0])
+                list_value.append('"'+ele[1]+'"')
+            query = query + ",".join(list_key) + ') VALUES ('  + ",".join(list_value) + ");"
+            print(query)
+            self.cursor.execute(query)
+            self.sqliteConnection.commit()
+        except sqlite3.Error as error:
+            #print("error is  ",error)
+            pass
     #ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
     def insert_data_without_column_name(self, table_name, list_data):
-        query = f'''INSERT INTO {table_name} VALUES ('''
-        list_donne = [f'"{x}"' for x in list_data]
-        query = query  + ','.join(list_donne) + ');'
-        print(query)
-        self.cursor.execute(query)
-        self.sqliteConnection.commit()
+        try: 
+            query = f'''INSERT INTO {table_name} VALUES ('''
+            list_donne = [f'"{x}"' for x in list_data]
+            query = query  + ','.join(list_donne) + ');'
+            print(query)
+            self.cursor.execute(query)
+            self.sqliteConnection.commit()
+        except sqlite3.Error as error:
+            # print("error  is   ", error)
+            pass
     #ex:  delete_row("TEST_TABLE","name = 'Cong Khai'")
     def delete_row(self, table_name,condition):
         query = f"DELETE FROM {table_name} WHERE {condition}"
@@ -104,7 +123,7 @@ class Data_base:
             tab[col[0]] = []
             cols.append(col[0])
         for row in data:
-            for i in range(3):
+            for i in range(len(row)):
                 tab[cols[i]].append(row[i])
         # print(tab)
         print(f_string_table(tab))
