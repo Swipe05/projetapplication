@@ -1,0 +1,42 @@
+     def find_position_of_a_player(self,puuid, lpart):
+        x = 0
+
+        for i in (lpart):
+
+            if i != puuid:
+
+                x = x + 1
+            else:
+                # print("we found")
+                return (x)
+        return
+ 
+ 
+ for j in range(10):
+            match_detail_choixmatch = self.watcher.match.by_id(self.my_region, self.my_matches[int(j)])
+            
+
+
+            liste_part_puid = match_detail_choixmatch['metadata']['participants']
+            pos = self.find_position_of_a_player(self.me2["puuid"], liste_part_puid)
+            kill = match_detail_choixmatch["info"]["participants"][pos]["kills"]
+            morts = match_detail_choixmatch["info"]["participants"][pos]["deaths"]
+            assist = match_detail_choixmatch["info"]["participants"][pos]["assists"]
+
+            print("kda",kill,morts,assist)
+
+            match_start = (match_detail_choixmatch["info"]["gameEndTimestamp"]) / 1000
+            match_dat1 = datetime.fromtimestamp(match_start)
+            match_date = match_dat1.strftime("%m/%d/%Y - %H:%M:%S")
+
+            liste_kill.append(kill)
+            liste_date.append(match_date)
+            liste_mort.append(morts)
+            listelem = []
+            listelem.append(liste_kill[j])
+            listelem.append(liste_mort[j])
+            listelem.append(liste_date[j])
+
+            liste_finale.append(listelem)
+
+            print(liste_finale)
