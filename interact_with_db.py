@@ -1,7 +1,6 @@
 from multiprocessing import Condition
 import sqlite3
 
-
 class Data_base:
     def __init__(self, name = 'LMHT.db') -> None:
         
@@ -40,12 +39,20 @@ class Data_base:
             return False
         query = f""" CREATE TABLE {table_name} ( """
         count = 1
-        for element in table_columns.items():
-            if count < len(table_columns):
-                query += f""" {element[0]}   {element[1]} ,"""
-                count += 1
-            else:
-                query += f""" {element[0]}   {element[1]} """
+        if type(table_columns)==list:
+            for ele in table_columns:
+                if count < len(table_columns):
+                    query += f''' {ele}  VARCHAR(255) , '''
+                    count += 1
+                else:
+                    query += f'''{ele} VARCHAR(255)'''
+        elif type(table_columns)==dict: 
+            for element in table_columns.items():
+                if count < len(table_columns):
+                    query += f""" {element[0]}   {element[1]} ,"""
+                    count += 1
+                else:
+                    query += f""" {element[0]}   {element[1]} """
 
         query += ''');'''
         self.cursor.execute(query)
@@ -89,6 +96,20 @@ class Data_base:
         self.sqliteConnection.commit()
         print("---------------------------------------------------------------------------------------------")
         return data
+    def print_table_form_get_dict(self, table_name):
+        tab = {}
+        data=self.cursor.execute(f'''SELECT * FROM {table_name}''')
+        cols = []
+        for col in data.description:
+            tab[col[0]] = []
+            cols.append(col[0])
+        for row in data:
+            for i in range(3):
+                tab[cols[i]].append(row[i])
+        # print(tab)
+        print(f_string_table(tab))
+        return tab
+
     #ex: args = columns to display
     def select_data_with_condition(self, table_name,condition ,*args):
         data = []
@@ -139,6 +160,10 @@ class Data_base:
         query += f" WHERE {condition} ;"
         print(query)
         self.cursor.execute(query)
+    def list_all_table(self):
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        lsi_t = self.cursor.fetchall()
+        return lsi_t
     '''
     UPDATE table_name
 SET column1 = value1, column2 = value2...., columnN = valueN
@@ -160,6 +185,85 @@ join(self, table1, table2, on_clause, *args)
 
 '''
 #######################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##########################################################################################################################
+
+
+###Table printing functions###
+
+def f_table_length(d):
+    if d == {}:
+        return 0
+    myIter = (iter(d))
+    n = len(d[next(myIter)])
+    for att in myIter:
+        assert n == len(d[att]), f"Table with inconsistent lengths! {att} is {len(d[att])} instead of {n}"
+    return n
+
+def f_string_val(x, lim=20):
+    s = f"{x}"
+    if len(s) > lim:
+        return s[:7] + "..."
+    else:
+        return f"{s: >{lim}}"
+
+def f_string_line(d, i, ord=None, lim=20):
+    if ord is None:
+        ord = d
+    s = "|"
+    for att in ord:
+        s = s + f_string_val(d[att][i], lim) + "|"
+    return s
+
+
+def f_string_title(d, ord=None, lim=20):
+    if ord is None:
+        ord = d
+    s = "|"
+    for att in ord:
+        s = s + f_string_val(att, lim) + "|"
+    s = s + "\n" + "+"
+    for att in ord:
+        s = s + "-" * (lim) + "+"
+    return s
+
+def f_string_table(d, ord=None, lim=20):
+    if ord is None:
+        ord = d
+    s = f_string_title(d, ord, lim) + "\n"
+    n = f_table_length(d)
+    for i in range(n):
+        s = s + f_string_line(d, i, ord, lim) + "\n"
+    return s
+
+
+######################################################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
 
 lmht_db = Data_base()
 # table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
