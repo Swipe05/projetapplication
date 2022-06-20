@@ -76,14 +76,14 @@ class Data_base:
             list_key = []
             list_value = []
             for ele in dict_data.items():
-                list_key.append("[" + ele[0] + "]")
-                list_value.append('"'+ele[1]+'"')
+                list_key.append("[" + str(ele[0]) + "]")
+                list_value.append('"'+ str(ele[1]) +'"')
             query = query + ",".join(list_key) + ') VALUES ('  + ",".join(list_value) + ");"
             print(query)
             self.cursor.execute(query)
             self.sqliteConnection.commit()
         except sqlite3.Error as error:
-            #print("error is  ",error)
+            print("error is  ",error)
             pass
     # insert data to table
     def insert_multi_row_with_column_name(self, table_name, dict_data):
@@ -97,9 +97,9 @@ class Data_base:
                         ele_dict[list_columns[j]] = str(list_value[j][i])
                     self.insert_data_with_columns_names(table_name, ele_dict)
             else:
-                for j in range(len(list_columns)):
-                    ele_dict[list_columns[j]] = str(list_value[j])
-                self.insert_data_with_columns_names(table_name, ele_dict)
+                # for j in range(len(list_columns)):
+                #     ele_dict[list_columns[j]] = str(list_value[j])
+                self.insert_data_with_columns_names(table_name, dict_data)
 
         except sqlite3.Error as error:
             # print(error)
@@ -319,7 +319,7 @@ def f_string_table(d, ord=None, lim=20):
 
 
 
-lmht_db = Data_base()
+# lmht_db = Data_base()
 # table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
 # lmht_db.create_table("TEST_TABLE", table_column)
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.0'})
@@ -338,5 +338,5 @@ lmht_db = Data_base()
 # lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Cong Khai', 'game':'LOL', 'champ':'Garen'})
 # print(lmht_db.join('TEST_TABLE','TEST_TABLE2','TEST_TABLE.name=TEST_TABLE2.name',('TEST_TABLE.name','age','game')))
 # lmht_db.update_data("123","id>6" ,{"ADDRESS":'texas'})
-lmht_db.update_data("TEST_TABLE2","name='Cong Khai'" ,{"champ":'lux'})
-lmht_db.select_all_data('TEST_TABLE2')
+# lmht_db.update_data("TEST_TABLE2","name='Cong Khai'" ,{"champ":'lux'})
+# lmht_db.select_all_data('TEST_TABLE2')

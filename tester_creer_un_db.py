@@ -1,4 +1,3 @@
-
 from interact_with_db import Data_base
 
 
@@ -13,7 +12,13 @@ liste_final = [liste_final_max,liste_final_EP,liste_final_sw]
 dict_data_max = {"summonerName":"max","123ID":[10,11,12,13,14],"Kill":[1,10,8,1,4],"Death":[2,0,7,15,4],"Assist":[3,1,5,9,7]}
 
 dict_data_max_update = {"summonerName":"max","123ID":[15,16,17,18,19],"Kill":[11,1,6,0,0],"Death":[0,0,0,1,4],"Assist":[3,6,5,9,7]}
-dict_data_EP = {"summonerName":"EasyPotato","ID":[20,21,23,24,25],"Kill":[1,0,10,11,1],"Death":[1,4,0,11,0],"Assist":[3,4,1,13,19]}
+
+dict_data_max_update1 = {"summonerName":"max","123ID":[20,21,22,23,24],"Kill":[11,1,6,0,0],"Death":[0,0,0,1,4],"Assist":[3,6,5,9,7]}
+
+dict_data_max_update2 = {"summonerName":"max","123ID":[25,26,27,28,29],"Kill":[11,1,6,0,0],"Death":[0,0,0,1,4],"Assist":[3,6,5,9,7]}
+
+dict_data_max_update3 = {"summonerName":"max","123ID":[30,31,32,33,34],"Kill":[11,1,6,0,0],"Death":[0,0,0,1,4],"Assist":[3,6,5,9,7]}
+dict_data_EP = {"summonerName":"EasyPotato","ID":[35,36,37,38,39],"Kill":[1,0,10,11,1],"Death":[1,4,0,11,0],"Assist":[3,4,1,13,19]}
 dict_data_sw = {"summonerName":"Swipe","ID":[30,31,32,33,34],"Kill":[1,2,1,9,1],"Death":[1,2,18,0,1],"Assist":[1,2,19,17,17]}
 def main():
     # lmht_database = Data_base("test_database.db")
@@ -28,8 +33,14 @@ def main():
     #     # print(f'\n================================={pseudo[tables.index(i)]}=========================================\n\n')
     #     lmht_database.print_table_form_get_dict(i[0])
     lmht = Data_base("lmhtdb.db")
-    lmht.read_data_from_a_dict(dict_data_max)
-    lmht.read_data_from_a_dict(dict_data_max_update)
+    lmht.read_data_from_a_dict(dict_data_max,primary_key="[123ID]")
+    lmht.read_data_from_a_dict(dict_data_max_update, primary_key="[123ID]")
+
+    lmht.read_data_from_a_dict(dict_data_max_update1, primary_key="[123ID]")
+
+    lmht.read_data_from_a_dict(dict_data_max_update2, primary_key="[123ID]")
+
+    lmht.read_data_from_a_dict(dict_data_max_update3, primary_key="[123ID]")
     
 
 
