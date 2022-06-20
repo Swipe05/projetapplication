@@ -42,25 +42,25 @@ class Data_base:
         if type(table_columns)==list:
             for ele in table_columns:
                 if count < len(table_columns):
-                    query += f''' {ele}  VARCHAR(255) , '''
+                    query += f''' [{ele}]  VARCHAR(255) , '''
                     count += 1
                 else:
-                    query += f'''{ele} VARCHAR(255)'''
+                    query += f'''[{ele}] VARCHAR(255)'''
         elif type(table_columns)==dict: 
             for element in table_columns.items():
                 if count < len(table_columns):
-                    query += f""" {element[0]}   {element[1]} ,"""
+                    query += f""" [{element[0]}]   {element[1]} ,"""
                     count += 1
                 else:
-                    query += f""" {element[0]}   {element[1]} """
+                    query += f""" [{element[0]}]   {element[1]} """
         if primary_key != "":
             if type(primary_key) == list or type(primary_key)==tuple:
                 query += ", PRIMARY KEY ( "
                 for key in primary_key:
                     if primary_key.index(key) == len(primary_key) - 1:
-                        query += f" {key} )  "
+                        query += f" [{key}] )  "
                     else:
-                        query += f" {key}, "
+                        query += f" [{key}], "
             if type(primary_key)==str:
                 query += f" , PRIMARY KEY ({primary_key})  " 
         
@@ -76,7 +76,7 @@ class Data_base:
             list_key = []
             list_value = []
             for ele in dict_data.items():
-                list_key.append(ele[0])
+                list_key.append("[" + ele[0] + "]")
                 list_value.append('"'+ele[1]+'"')
             query = query + ",".join(list_key) + ') VALUES ('  + ",".join(list_value) + ");"
             print(query)
@@ -91,10 +91,16 @@ class Data_base:
             ele_dict = {}
             list_columns = list(dict_data.keys())
             list_value = list(dict_data.values())
-            for i in range(len(list_value[0])):
+            if type(list_value[0]) != int:
+                for i in range(len(list_value[0])):
+                    for j in range(len(list_columns)):
+                        ele_dict[list_columns[j]] = str(list_value[j][i])
+                    self.insert_data_with_columns_names(table_name, ele_dict)
+            else:
                 for j in range(len(list_columns)):
-                    ele_dict[list_columns[j]] = str(list_value[j][i])
+                    ele_dict[list_columns[j]] = str(list_value[j])
                 self.insert_data_with_columns_names(table_name, ele_dict)
+
         except sqlite3.Error as error:
             # print(error)
             pass
@@ -198,11 +204,14 @@ class Data_base:
         lsi_t = self.cursor.fetchall()
         return lsi_t
     # create and add data to a table
-    def read_data_from_a_dict(self, dictionary, name = "summonername", primary_key = "ID"):
+    def read_data_from_a_dict(self, dictionary, name = "summonerName", primary_key = "ID"):
         list_keys = list(dictionary.keys())
-        list_keys.remove(name)
         list_values = list(dictionary.values())
-        list_values.remove(dictionary.get(name))
+        try:
+            list_keys.remove(name)
+            list_values.remove(dictionary.get(name))
+        except:
+            pass
         tab_name = dictionary.get(name)
         dictionary.pop(name)
         self.create_table(tab_name, list_keys, primary_key)

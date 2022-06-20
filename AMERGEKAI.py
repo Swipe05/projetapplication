@@ -9,7 +9,7 @@ import os
 import webbrowser
 from threading import Thread
 from datetime import datetime
-import asyncio
+from interact_with_db import *
 
 
 class LoLInterface:
@@ -19,6 +19,7 @@ class LoLInterface:
     """
 
     def __init__(self):
+        self.database = Data_base("LienMinh.db")
         self.summoner_result = ""
         # Api key needed to work with Riot Api
         self.api_key = 'RGAPI-9f31db89-ad7d-4271-a5e5-9de888304862'
@@ -236,6 +237,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
         """Function that gets the last 20 games of the Summoner and adds them to the Listbox"""
 
         self.my_region = self.combo.get()
+        # self.text.get() = summonername
         if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
             messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
         else:
@@ -271,7 +273,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 liste_kill = []
                 liste_date = []
                 liste_mort = []
-
+                
                 for j in range(10):
                     match_detail_choixmatch = self.watcher.match.by_id(self.my_region, self.my_matches[int(j)])
 
@@ -313,6 +315,9 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                     last_dict = last_dict | {'timestamp': match_start}
                     last_dict = last_dict | {'date': match_date}
                     print(last_dict)
+                    self.database.read_data_from_a_dict(last_dict,"summonerName","timestamp")
+
+
     def buscar_Invocador_list(self):
         """Function that gets the last 20 games of the Summoner in combo_players and adds them to the Listbox"""
 
