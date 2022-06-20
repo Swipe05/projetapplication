@@ -134,10 +134,11 @@ class Data_base:
     # UPDATE COMPANY SET ADDRESS = 'Texas' WHERE ID = 6;
     def update_data(self,tabel_name, condition, dict_change):
         query = f"UPDATE {tabel_name} SET "
-        con = [f"{x}={y}" for x,y in dict_change.items()]
+        con = [f"{x}='{y}'" for x,y in dict_change.items()]
         query += ','.join(con)
         query += f" WHERE {condition} ;"
         print(query)
+        self.cursor.execute(query)
     '''
     UPDATE table_name
 SET column1 = value1, column2 = value2...., columnN = valueN
@@ -161,8 +162,8 @@ join(self, table1, table2, on_clause, *args)
 #######################################################################################################################
 
 lmht_db = Data_base()
-## table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
-## lmht_db.create_table("TEST_TABLE", table_column)
+# table_column={'name':"varchar(255)", 'age':"INTEGER", 'score':"REAL"}
+# lmht_db.create_table("TEST_TABLE", table_column)
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.0'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Esteban', 'age':'19', 'score':'19.5'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE", {'name':'Leo', 'age':'30', 'score':'20.1'})
@@ -171,11 +172,13 @@ lmht_db = Data_base()
 # lmht_db.delete_row("TEST_TABLE","name = 'Cong Khai'")
 # lmht_db.select_all_data("TEST_TABLE")
 # print(lmht_db.select_data_with_condition("TEST_TABLE", " age = 19 ", ("name","age")))
-## table2_column = {'name':'varchar(255)', 'game':'varchar(255)', 'champ':'varchar(255)'}
+# table2_column = {'name':'varchar(255)', 'game':'varchar(255)', 'champ':'varchar(255)'}
 # lmht_db.create_table("TEST_TABLE2", table2_column)
 # lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Maxime', 'game':'LOL', 'champ':'Camille'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Leo', 'game':'Valorant', 'champ':'Raze'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Esteban', 'game':'Valorant', 'champ':'Yoru'})
 # lmht_db.insert_data_with_columns_names("TEST_TABLE2", {'name':'Cong Khai', 'game':'LOL', 'champ':'Garen'})
 # print(lmht_db.join('TEST_TABLE','TEST_TABLE2','TEST_TABLE.name=TEST_TABLE2.name',('TEST_TABLE.name','age','game')))
-lmht_db.update_data("123","id>6" ,{"ADDRESS":'texas'})
+# lmht_db.update_data("123","id>6" ,{"ADDRESS":'texas'})
+lmht_db.update_data("TEST_TABLE2","name='Cong Khai'" ,{"champ":'lux'})
+lmht_db.select_all_data('TEST_TABLE2')

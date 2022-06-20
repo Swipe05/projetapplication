@@ -20,7 +20,7 @@ class LoLInterface:
     def __init__(self):
         self.summoner_result = ""
         # Api key needed to work with Riot Api
-        self.api_key = 'RGAPI-794efd89-94df-4d6b-9563-d88d1fff37d9'
+        self.api_key = 'RGAPI-d174661c-63e1-448f-90a5-802af68b9d39'
 
         # LolWatcher instance creation
         self.watcher = LolWatcher(self.api_key)
