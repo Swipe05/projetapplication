@@ -9,6 +9,7 @@ import os
 import webbrowser
 from threading import Thread
 from datetime import datetime
+import asyncio
 
 
 class LoLInterface:
