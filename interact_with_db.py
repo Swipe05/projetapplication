@@ -85,7 +85,7 @@ class Data_base:
         except sqlite3.Error as error:
             #print("error is  ",error)
             pass
-
+    # insert data to table
     def insert_multi_row_with_column_name(self, table_name, dict_data):
         try:
             ele_dict = {}
@@ -96,7 +96,7 @@ class Data_base:
                     ele_dict[list_columns[j]] = str(list_value[j][i])
                 self.insert_data_with_columns_names(table_name, ele_dict)
         except sqlite3.Error as error:
-            print(error)
+            # print(error)
             pass
     #ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
     def insert_data_without_column_name(self, table_name, list_data):
@@ -197,22 +197,22 @@ class Data_base:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         lsi_t = self.cursor.fetchall()
         return lsi_t
-
-    def read_data_from_a_dict(self, dictionary, name = "summonername"):
+    # create and add data to a table
+    def read_data_from_a_dict(self, dictionary, name = "summonername", primary_key = "ID"):
         list_keys = list(dictionary.keys())
         list_keys.remove(name)
         list_values = list(dictionary.values())
         list_values.remove(dictionary.get(name))
         tab_name = dictionary.get(name)
         dictionary.pop(name)
-        self.create_table(tab_name, list_keys, "ID")
+        self.create_table(tab_name, list_keys, primary_key)
         self.insert_multi_row_with_column_name(tab_name, dictionary)
         # self.insert_data_with_columns_names(dictionary.get(name),dictionary)
         # print(f'{list_keys} \n {list_values}')
     '''
     UPDATE table_name
-SET column1 = value1, column2 = value2...., columnN = valueN
-WHERE [condition];
+    SET column1 = value1, column2 = value2...., columnN = valueN
+    WHERE [condition];
     '''  
 
 #######################################################################################################################
