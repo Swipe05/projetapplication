@@ -13,3 +13,6 @@ EasyPotatoEU | EUW1
 Swipe04 | EUW1
 TTSiHades | EUW1
 TTSiHades | EUW1
+Swipe04 | EUW1
+EasyPotatoEU | EUW1
+HentEye | EUW1
