@@ -31,7 +31,10 @@ class Data_base:
 
     # create table
     # if data type is text ===> "VARCHAR(255)"
+    def name_with_espace(self, name):
+        return name.replace(" ","_es_")
     def create_table(self, table_name, table_columns, primary_key=""):
+        table_name = self.name_with_espace(table_name)
         # check if table exists
         listOfTable = self.cursor.execute(
             f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
@@ -72,6 +75,7 @@ class Data_base:
     # insert values into the table by reordering the names of the columns
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
     def insert_data_with_columns_names(self, table_name, dict_data):
+        table_name = self.name_with_espace(table_name)
         try:
             query = f'''INSERT INTO {table_name} ('''
             list_key = []
@@ -89,6 +93,7 @@ class Data_base:
 
     # insert data to table
     def insert_multi_row_with_column_name(self, table_name, dict_data):
+        table_name = self.name_with_espace(table_name)
         try:
             ele_dict = {}
             list_columns = list(dict_data.keys())
@@ -109,6 +114,7 @@ class Data_base:
 
     # ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
     def insert_data_without_column_name(self, table_name, list_data):
+        table_name = self.name_with_espace(table_name)
         try:
             query = f'''INSERT INTO {table_name} VALUES ('''
             list_donne = [f'"{x}"' for x in list_data]
@@ -122,6 +128,7 @@ class Data_base:
 
     # ex:  delete_row("TEST_TABLE","name = 'Cong Khai'")
     def delete_row(self, table_name, condition):
+        table_name = self.name_with_espace(table_name)
         query = f"DELETE FROM {table_name} WHERE {condition}"
         print(query)
         self.cursor.execute(query)
@@ -129,6 +136,7 @@ class Data_base:
 
     # ex: select_all_data("TEST_TABLE")
     def select_all_data(self, table_name):
+        table_name = self.name_with_espace(table_name)
         data = []
         query = f"SELECT * FROM {table_name}"
         self.cursor.execute(query)
@@ -142,6 +150,7 @@ class Data_base:
         return data
 
     def print_table_form_get_dict(self, table_name):
+        table_name = self.name_with_espace(table_name)
         tab = {}
         data = self.cursor.execute(f'''SELECT * FROM {table_name}''')
         cols = []
@@ -157,6 +166,7 @@ class Data_base:
 
     # ex: args = columns to display
     def select_data_with_condition(self, table_name, condition, *args):
+        table_name = self.name_with_espace(table_name)
         data = []
         query = "SELECT "
         if len(args) == 0:
@@ -189,6 +199,7 @@ class Data_base:
         return data
 
     def drop_table(self, table_name):
+        table_name = self.name_with_espace(table_name)
         # check if table exists
         listOfTable = self.cursor.execute(
             f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
@@ -237,12 +248,14 @@ class Data_base:
     '''
 
     def list_columns(self,table_name):
+        table_name = self.name_with_espace(table_name)
         cols = []
         self.cursor.execute(f"SELECT * FROM {table_name}")
         for col in self.cursor.description:
             cols.append(col[0])
         return cols
     def add_column(self, table_name, column_name):
+        table_name - self.name_with_espace(table_name)
         col_name = str(column_name)
         query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} varchar(255);"
         self.cursor.execute(query)

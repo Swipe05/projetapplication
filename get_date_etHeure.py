@@ -49,5 +49,5 @@ class HeureEtDate:
         return dict_return
 
 
-get_swipe = HeureEtDate("HentEye")
-print(get_swipe.get_dict_num("04","2022"))
+
+# get_swipe = HeureEtDate("HentEye")
