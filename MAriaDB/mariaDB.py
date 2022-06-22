@@ -41,15 +41,24 @@ class Data_base:
         return name.replace(" ","_es_")
 
     def create_table(self, table_name, table_columns, primary_key=""):
+        # print(f"\n\n\n{primary_key}\n\n\n")
         query = f""" CREATE TABLE IF NOT EXISTS {table_name}("""
         count = 1
         if type(table_columns) == list:
             for ele in table_columns:
                 if count < len(table_columns):
-                    query += f''' col_{ele}  VARCHAR(255) , '''
+                    if f'col_{ele}' == primary_key:
+                        query += f''' col_{ele}  varchar(30) , '''
+                        count += 1
+                        continue
+                    query += f''' col_{ele}  text , '''
                     count += 1
                 else:
-                    query += f'''col_{ele} VARCHAR(255)'''
+                    if f'col_{ele}' == primary_key:
+                        query += f''' col_{ele}  varchar(30)'''
+                        count += 1
+                        continue
+                    query += f'''col_{ele} text'''
         elif type(table_columns) == dict:
             for element in table_columns.items():
                 if count < len(table_columns):
@@ -68,7 +77,7 @@ class Data_base:
             if type(primary_key) == str:
                 query += f" , PRIMARY KEY ({primary_key})  "
 
-        query += ''');'''
+        query += ''')ROW_FORMAT=DYNAMIC ;'''
         print(query)
         self.cursor.execute(query)
 
@@ -231,6 +240,7 @@ class Data_base:
 
     # create and add data to a table
     def read_data_from_a_dict(self, dictionary, name="Partie", primary_key="timestamp", table_all_name = "all_summoner"):
+        primary_key = "col_" + primary_key
         list_keys = list(dictionary.keys())
         list_values = list(dictionary.values())
         print("list key = ", list_keys)
