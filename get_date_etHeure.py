@@ -20,11 +20,11 @@ class HeureEtDate:
 
     # select match_start_time, match_end_time, number_of_match_in_a_day, timestamp
     # datemonthyear format is %d/%m/%y
-    def get_data_of_a_day(self, monthdayyear):
-        return self.database.select_data_with_condition(self.pseudo,f" date LIKE   '{monthdayyear}%'",('timestamp','date'))
+    def get_data_of_a_day(self, monthdayyear, table ="Partie"):
+        return self.database.select_data_with_condition(table,f" date LIKE   '{monthdayyear}%' AND summonerName = {self.pseudo}",('timestamp','date'))
 
-    def get_all_data_a_month(self, month, year):
-        return self.database.select_data_with_condition(self.pseudo,f" date LIKE   '%{month}%{year}%'",('timestamp','date'))
+    def get_all_data_a_month(self, month, year,table="Partie"):
+        return self.database.select_data_with_condition(table,f" date LIKE   '%{month}%{year}%' AND summonerName = {self.pseudo} ",('timestamp','date'))
 
     def get_number_of_match_a_month(self, month, year):
         return  len(self.get_all_data_a_month(month,year))
