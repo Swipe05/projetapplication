@@ -16,6 +16,7 @@ from threading import Thread
 from datetime import datetime
 from interact_with_db import *
 from variable import every
+from calendar_DB import *
 
 
 
@@ -169,6 +170,14 @@ class LoLInterface:
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
         # Scrollbar creation for Listbox
+        self.list = Listbox(justify=CENTER)
+        self.list.config(borderwidth=2, activestyle=NONE, fg="white",
+                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
+                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
+                         highlightbackground='#313cf7', highlightcolor='#2029c7')
+        self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
+
+        # Scrollbar creation for Listbox
         self.scroll = Scrollbar()
         self.scroll.grid(row=1, column=2, sticky=NS, pady=10)
         self.list.config(yscrollcommand=self.scroll.set)
@@ -192,7 +201,7 @@ class LoLInterface:
         self.buscar_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
         self.view_ranked = Button(text="View ranked info", command=self.view_ranked_info,
                                   font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.view_ranked.grid(row=8, column=0, sticky=EW, columnspan=3)
+        self.view_ranked.grid(row=8, column=0, sticky=W, columnspan=3)
         self.region_label = Label(text="Player region: ", font=('Comic Sans MS', 15, 'bold'),
                                   background='#05061a', foreground='#0f1adb')
         self.player_list_label = Label(text="Player list: ", font=('Comic Sans MS', 15, 'bold'),
@@ -222,10 +231,10 @@ class LoLInterface:
         # self.view_active.grid(row=7, column=0, sticky=EW, pady=10, columnspan=3)
         self.top_p = Button(text="Top Challenger Players", command=self.top_Players,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        # self.top_p.grid(row=9, column=0, sticky=EW, columnspan=3)
-        self.loadbtn = Button(text="Recent Searches", command=self.loadPlayers,
+        self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
+        self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
                               font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.loadbtn.grid(row=10, column=0, sticky=EW, columnspan=3, pady=10)
+        self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
         self.listbox = Listbox(self.new_win4, justify=CENTER)
 
         self.selection = 0
@@ -235,6 +244,27 @@ class LoLInterface:
         self.listbox.bind('<Double-Button>', self.double_click2)
 
         self.window.mainloop()
+
+    def make_calendar(self):
+
+        self.my_region = self.combo.get()
+        if self.combo_player.get() == "" or self.combo_player.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+            messagebox.showerror(title="Error!", message="You must select a summoner name and region.")
+        else:
+            try:
+                name = self.combo_player.get()
+                nameF = name[:-1]
+                me = self.watcher.summoner.by_name(self.my_region, nameF)
+
+            except HTTPError:
+                messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
+                                                             " api key"
+                                                             " or the Summoner does not exist in the specified region")
+            except UnicodeEncodeError:
+                messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
+            else:
+
+                init_calendar(nameF)
 
     def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
         roles = []
@@ -329,12 +359,14 @@ class LoLInterface:
         self.my_region = self.combo.get()
 
         # If statement to check if Summoner Entry is correct
-        if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
-            messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
+        if self.combo_player.get() == "" or self.combo_player.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+            messagebox.showerror(title="Error!", message="You must select a summoner name and region.")
         else:
             try:
                 # We get the Summoner info
-                me = self.watcher.summoner.by_name(self.my_region, self.text.get())
+                name = self.combo_player.get()
+                nameF = name[:-1]
+                me = self.watcher.summoner.by_name(self.my_region, nameF)
 
                 # Get the summoner ranked info
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
@@ -755,7 +787,6 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
             'Total Taken Damage': dano_recibido,
             'Result': win
         }
-
         # Create pandas Dataframe
         df = pd.DataFrame(data)
         df['Role'].replace(to_replace=dict(UTILITY='SUPPORT'), inplace=True)
