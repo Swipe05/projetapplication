@@ -50,6 +50,5 @@ class HeureEtDate:
 
 
 
-get_swipe = HeureEtDate("HentEye")
-print(get_swipe.get_dict_num("04","2022"))
-print(get_swipe.get_heure_of_date("04","04","2022"))
+
+# get_swipe = HeureEtDate("HentEye")
