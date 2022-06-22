@@ -222,10 +222,10 @@ class LoLInterface():
                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                          border_width=3,
                                          corner_radius=8,
-                                         text="Add Player to Database", command=self.buscar_Invocador,
+                                         text="Show Last 100 Games", command=self.buscar_Invocador,
                                          background='#BBF287', text_color='white', border_color='#005A34',
                                          hover_color='#005A34')
-        self.buscar_btn.grid(row=6, column=0, sticky=EW, columnspan=3, pady=10)
+        self.buscar_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
         self.buscar_btn_list = ctkp.CTkButton(width=150,
                                               height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                               border_width=3,
@@ -282,7 +282,7 @@ class LoLInterface():
                                     text="Top Challenger Players", command=self.top_Players,
                                     background='#BBF287', text_color='white', border_color='#005A34',
                                     hover_color='#005A34')
-        self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
+        #self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
         self.loadbtn = ctkp.CTkButton(width=185,
                                       height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                       border_width=3,
