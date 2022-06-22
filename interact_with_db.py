@@ -1,5 +1,7 @@
 import sqlite3
 
+#from matplotlib.pyplot import table
+
 
 
 class Data_base:
@@ -32,7 +34,12 @@ class Data_base:
     # create table
     # if data type is text ===> "VARCHAR(255)"
     def name_with_espace(self, name):
+        name = self.name_begin_with_number(name)
         return name.replace(" ","_es_")
+    def name_begin_with_number(self,table_name):
+        if table_name[0] in '01234567890':
+            table_name = "[" + table_name + "]"
+        return table_name
     def create_table(self, table_name, table_columns, primary_key=""):
         table_name = self.name_with_espace(table_name)
         # check if table exists
@@ -50,6 +57,7 @@ class Data_base:
                     count += 1
                 else:
                     query += f'''[{ele}] VARCHAR(255)'''
+
         elif type(table_columns) == dict:
             for element in table_columns.items():
                 if count < len(table_columns):
@@ -70,7 +78,10 @@ class Data_base:
 
         query += ''');'''
         print(query)
-        self.cursor.execute(query)
+        try:
+            self.cursor.execute(query)
+        except:
+            pass
 
     # insert values into the table by reordering the names of the columns
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
@@ -255,7 +266,7 @@ class Data_base:
             cols.append(col[0])
         return cols
     def add_column(self, table_name, column_name):
-        table_name - self.name_with_espace(table_name)
+        table_name = self.name_with_espace(table_name)
         col_name = str(column_name)
         query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} varchar(255);"
         self.cursor.execute(query)
