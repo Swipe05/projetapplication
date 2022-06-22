@@ -255,7 +255,7 @@ class Data_base:
             cols.append(col[0])
         return cols
     def add_column(self, table_name, column_name):
-        table_name - self.name_with_espace(table_name)
+        table_name = self.name_with_espace(table_name)
         col_name = str(column_name)
         query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} varchar(255);"
         self.cursor.execute(query)
