@@ -10,8 +10,10 @@ from datetime import datetime
 import os
 import webbrowser
 import random
+
 import asyncio
 
+from calendar_DB import *
 from threading import Thread
 from datetime import datetime
 from interact_with_db import *
@@ -169,6 +171,14 @@ class LoLInterface:
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
         # Scrollbar creation for Listbox
+        self.list = Listbox(justify=CENTER)
+        self.list.config(borderwidth=2, activestyle=NONE, fg="white",
+                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
+                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
+                         highlightbackground='#313cf7', highlightcolor='#2029c7')
+        self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
+
+        # Scrollbar creation for Listbox
         self.scroll = Scrollbar()
         self.scroll.grid(row=1, column=2, sticky=NS, pady=10)
         self.list.config(yscrollcommand=self.scroll.set)
@@ -184,15 +194,15 @@ class LoLInterface:
         self.clear_entry = Button(text='Clear', command=self.clear, font=('Comic Sans MS', 10, 'bold'),
                                   background='#858aed', width=10)
         self.clear_entry.grid(row=3, column=1)
-        self.buscar_btn = Button(text="Add Player to Database", command=self.buscar_Invocador,
+        self.buscar_btn = Button(text="Show 100 last game", command=self.buscar_Invocador,
                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.buscar_btn.grid(row=6, column=0, sticky=EW, columnspan=3, pady=10)
+        self.buscar_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
         self.buscar_btn_list = Button(text="Show stat for summoners in list", command=self.buscar_Invocador_list,
                                       font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.buscar_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
         self.view_ranked = Button(text="View ranked info", command=self.view_ranked_info,
                                   font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.view_ranked.grid(row=8, column=0, sticky=EW, columnspan=3)
+        self.view_ranked.grid(row=8, column=0, sticky=W, columnspan=3)
         self.region_label = Label(text="Player region: ", font=('Comic Sans MS', 15, 'bold'),
                                   background='#05061a', foreground='#0f1adb')
         self.player_list_label = Label(text="Player list: ", font=('Comic Sans MS', 15, 'bold'),
@@ -222,10 +232,13 @@ class LoLInterface:
         # self.view_active.grid(row=7, column=0, sticky=EW, pady=10, columnspan=3)
         self.top_p = Button(text="Top Challenger Players", command=self.top_Players,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        # self.top_p.grid(row=9, column=0, sticky=EW, columnspan=3)
-        self.loadbtn = Button(text="Recent Searches", command=self.loadPlayers,
+        self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
+        self.build_truc = Button(text="Creation reseau et database", command=self.create_dataset_and_add,
+                            font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
+        self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
                               font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.loadbtn.grid(row=10, column=0, sticky=EW, columnspan=3, pady=10)
+        self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
         self.listbox = Listbox(self.new_win4, justify=CENTER)
 
         self.selection = 0
@@ -235,6 +248,28 @@ class LoLInterface:
         self.listbox.bind('<Double-Button>', self.double_click2)
 
         self.window.mainloop()
+
+    def make_calendar(self):
+
+        self.my_region = self.combo.get()
+        if self.combo_player.get() == "" or self.combo_player.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+            messagebox.showerror(title="Error!", message="You must select a summoner name and region.")
+        else:
+            try:
+                name = self.combo_player.get()
+                nameF = name[:-1]
+                me = self.watcher.summoner.by_name(self.my_region, nameF)
+
+            except HTTPError:
+                messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
+                                                             " api key"
+                                                             " or the Summoner does not exist in the specified region")
+            except UnicodeEncodeError:
+                messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
+            else:
+
+                init_calendar(nameF)
+
 
     def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
         roles = []
@@ -329,12 +364,14 @@ class LoLInterface:
         self.my_region = self.combo.get()
 
         # If statement to check if Summoner Entry is correct
-        if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
-            messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
+        if self.combo_player.get() == "" or self.combo_player.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+            messagebox.showerror(title="Error!", message="You must select a summoner name and region.")
         else:
             try:
                 # We get the Summoner info
-                me = self.watcher.summoner.by_name(self.my_region, self.text.get())
+                name = self.combo_player.get()
+                nameF = name[:-1]
+                me = self.watcher.summoner.by_name(self.my_region, nameF)
 
                 # Get the summoner ranked info
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
@@ -348,7 +385,8 @@ class LoLInterface:
                 try:
                     self.savePlayers()
                     # Calculate the winrate
-                    winrate = my_ranked_stats[0]['wins'] / (my_ranked_stats[0]['wins'] + my_ranked_stats[0]['losses'])
+                    winrate = my_ranked_stats[0]['wins'] / (
+                                my_ranked_stats[0]['wins'] + my_ranked_stats[0]['losses'])
                     winrate = winrate * 100
 
                     # Messagebox with all the info
@@ -382,15 +420,30 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
 
 
     def reseau2(self,puuid):
-        temp_matches0 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid,count=20)
-        print("nbgamearchambre",len(temp_matches0))
-        self.my_matches2 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid)
+        try:
+            temp_matches0 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid,count=20)
+        except:
+            time.sleep(1)
+            temp_matches0 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid, count=20)
+
+
+        try:
+            self.my_matches2 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid)
+        except:
+            time.sleep(1)
+            self.my_matches2 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid)
+
         if (len(temp_matches0) < 20):
             print('\033[94mARCHAMBEEEEEEEEEEEEEEEEEEEEEE VIEN LAAAAAAAAAAAAAAAAAAA",self.watcher.summoner.by_puuid(self.my_region, a)["name"]\033[0m')
         else:
             print("joueur bien ajouté")
             self.all_players2.append(puuid)
-        match_detail3 = self.watcher.match.by_id(self.my_region, self.my_matches2[1])
+        try:
+            match_detail3 = self.watcher.match.by_id(self.my_region, self.my_matches2[1])
+        except:
+            time.sleep(1)
+            match_detail3 = self.watcher.match.by_id(self.my_region, self.my_matches2[1])
+
         # for puid in match_detail['metadata']['participants']: #participant de la game de swipe
         # participants.append(self.watcher.summoner.by_puuid(self.my_region, puid)['name'])
         rand = random.randint(0,5)
@@ -408,14 +461,15 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                     print('\033[94mARCHAMBEEEEEEEEEEEEEEEEEEEEEE VIEN LAAAAAAAAAAAAAAAAAAA",self.watcher.summoner.by_puuid(self.my_region, a)["name"]\033[0m')
                     continue
                 print("lesmec",self.watcher.summoner.by_puuid(self.my_region, a)["name"])
+                self.save_list_Players(self.watcher.summoner.by_puuid(self.my_region, a)["name"])
                 self.all_players2.append(self.watcher.summoner.by_puuid(self.my_region, a)["puuid"])
                 #self.all_players = list(set(self.all_players))
                 self.all_players2 = list(set(self.all_players2))
             #print(self.all_players)
-            print(len(self.all_players2))
-            if (len(self.all_players2) > 9):
-                print(self.all_players2)
-                return self.all_players2
+                print(len(self.all_players2))
+                if (len(self.all_players2) > 9):
+                    print(self.all_players2)
+                    return self.all_players2
 
         self.reseau2(self.all_players2[self.rec + 1])
 
@@ -483,15 +537,16 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 try:
                     if init:
                         for ele in last_dict.keys():
-                            if ele not in self.database.list_columns(last_dict.get("summonerName")):
-                                self.database.add_column(last_dict.get("summonerName"), ele)
+                            if ele not in self.database.list_columns("Partie"):
+                                self.database.add_column("Partie", ele)
 
                         # print(last_dict)
-                    self.database.read_data_from_a_dict(last_dict, "summonerName", "timestamp")
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
                     init = True
                 except sqlite3.Error as error:
-                    self.database.read_data_from_a_dict(last_dict, "summonerName", "timestamp")
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
                     init = True
+        print("FIN")
 
     def reseau(self,puuid):
         x=0
@@ -519,6 +574,39 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
         print("test", liste_part_puid2)
 
 
+    def create_dataset_and_add(self):
+
+        init = False
+        self.my_region = self.combo.get()
+        # self.text.get() = summonername
+        if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+            messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
+        else:
+            try:
+                print("")
+                me = self.watcher.summoner.by_name(self.my_region, self.text.get())
+                print("test", me)
+                print("testowo", me["name"])
+            except HTTPError:
+                messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
+                                                             " api key"
+                                                             " or the Summoner does not exist in the specified region")
+            except UnicodeEncodeError:
+                messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
+            else:
+                #self.savePlayers()
+                self.save_list_Players(self.text.get())
+
+
+                self.puuid = me['puuid']
+                self.reseau2(self.puuid)
+                # a = asyncio.get_event_loop()
+                # a.create_task(every(10*60,self.ajoutbase))
+                # a.run_forever()
+                self.ajoutbase()
+
+
+
 
     def buscar_Invocador(self):
         """Function that gets the last 20 games of the Summoner and adds them to the Listbox"""
@@ -526,7 +614,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
         self.my_region = self.combo.get()
         # self.text.get() = summonername
         if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
-            messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
+            self.buscar_Invocador_list()
         else:
             try:
                 print("")
@@ -541,7 +629,11 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
             else:
                 self.savePlayers()
-                self.save_list_Players()
+                try:
+                    self.save_list_Players(self.text.get())
+                except:
+                    pass
+
 
                 self.puuid = me['puuid']
 
@@ -555,7 +647,18 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
 
 
                 self.list.delete(0, END)
-                self.reseau2(self.puuid)
+
+                for i in range(1, 100):
+                    self.list.insert(END, f'{me["name"]} 🡺 Game {i}')
+
+                # Bind that allows user to interact with Listbox items by double clicking them
+                self.list.bind("<Double-1>", self.OnDoubleClick)
+                self.list.bind("<Return>", self.OnDoubleClick)
+                self.last_20.config(text=f"Last 20 games of {me['name']}")
+
+
+                #self.reseau2(self.puuid)
+
 
                 #self.reseau(self.puuid)
 
@@ -572,13 +675,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 #     print(all_players)
                 #     print(len(all_players))
 
-                for i in range(1, 101):
-                    self.list.insert(END, f'{me["name"]} 🡺 Game {i}')
 
-                # Bind that allows user to interact with Listbox items by double clicking them
-                self.list.bind("<Double-1>", self.OnDoubleClick)
-                self.list.bind("<Return>", self.OnDoubleClick)
-                self.last_20.config(text=f"Last 20 games of {me['name']}")
 
                 liste_finale = []
 
@@ -586,9 +683,9 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 liste_date = []
                 liste_mort = []
 
-                a = asyncio.get_event_loop()
-                a.create_task(every(10*60,self.ajoutbase))
-                a.run_forever()
+                # a = asyncio.get_event_loop()
+                # a.create_task(every(10*60,self.ajoutbase))
+                # a.run_forever()
                 #self.ajoutbase()
 
 
@@ -662,7 +759,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 #         except sqlite3.Error as error:
                 #             self.database.read_data_from_a_dict(last_dict, "summonerName", "timestamp")
                 #             init = True
-                print("FIN")
+                #print("FIN")
     def buscar_Invocador_list(self):
         """Function that gets the last 20 games of the Summoner in combo_players and adds them to the Listbox"""
 
@@ -761,7 +858,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
         df['Role'].replace(to_replace=dict(UTILITY='SUPPORT'), inplace=True)
         df['Champion'].replace(to_replace=dict(MonkeyKing='Wukong'), inplace=True)
         df['Result'].replace({True: 'VICTORY', False: 'DEFEAT'}, inplace=True)
-        # self.summoner_result = str(df.loc[df['Summoner'] == self.text.get()]['Result'])
+        self.summoner_result = str(df.loc[df['Summoner'] == self.text.get()]['Result'])
         game_start = datetime.fromtimestamp(match_detail['info']['gameStartTimestamp'] / 1000)
         game_start = game_start.strftime("%m/%d/%Y - %H:%M:%S")
         game_end = datetime.fromtimestamp(match_detail['info']['gameEndTimestamp'] / 1000)
@@ -1148,14 +1245,14 @@ Win Rate: {winrate}%
                 f.writelines(f"{self.text.get()} | {self.combo.get()}\n")
             f.close()
 
-    def save_list_Players(self):
+    def save_list_Players(self,name):
         try:
             with open('players_list.txt', mode='a') as f:
-                f.writelines(f"{self.text.get()}\n")
+                f.writelines(f"{name}\n")
             f.close()
         except UnicodeEncodeError:
             with open('players_list.txt', mode='a', encoding='utf-8') as f:
-                f.writelines(f"{self.text.get()}\n")
+                f.writelines(f"{name}\n")
             f.close()
 
     def loadPlayers(self):
