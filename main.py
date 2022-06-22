@@ -18,6 +18,7 @@ from threading import Thread
 from datetime import datetime
 from interact_with_db import *
 from variable import every
+from calendar_DB import *
 
 
 
@@ -233,9 +234,12 @@ class LoLInterface:
         self.top_p = Button(text="Top Challenger Players", command=self.top_Players,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
+<<<<<<< HEAD
         self.build_truc = Button(text="Creation reseau et database", command=self.create_dataset_and_add,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
+=======
+>>>>>>> ec2bf0d5c175a79ca753b2f659a8a831ede06902
         self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
                               font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
@@ -270,7 +274,10 @@ class LoLInterface:
 
                 init_calendar(nameF)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> ec2bf0d5c175a79ca753b2f659a8a831ede06902
     def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
         roles = []
         main_role = None
@@ -852,7 +859,6 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
             'Total Taken Damage': dano_recibido,
             'Result': win
         }
-
         # Create pandas Dataframe
         df = pd.DataFrame(data)
         df['Role'].replace(to_replace=dict(UTILITY='SUPPORT'), inplace=True)
