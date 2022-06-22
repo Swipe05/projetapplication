@@ -18,7 +18,7 @@ from threading import Thread
 from datetime import datetime
 from interact_with_db import *
 from variable import every
-from calendar_DB import *
+import time
 
 
 
@@ -96,7 +96,7 @@ init_request = {'assists': 5, 'baronKills': 0, 'bountyLevel': 0, '12AssistStreak
 list_header = list(init_request.keys())
 
 
-class LoLInterface:
+class LoLInterface():
     """
     Interface that allows user to search for League of Legends Summoners info, ranked stats,
     matches...
@@ -234,12 +234,14 @@ class LoLInterface:
         self.top_p = Button(text="Top Challenger Players", command=self.top_Players,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
-<<<<<<< HEAD
-        self.build_truc = Button(text="Creation reseau et database", command=self.create_dataset_and_add,
+        self.build_truc = Button(text="Creation reseau et database", command=self.run_db_scan,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
-=======
->>>>>>> ec2bf0d5c175a79ca753b2f659a8a831ede06902
+
+        self.addaperson = Button(text="Add one person to database", command=self.add_one_person,
+                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
+
         self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
                               font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
@@ -251,6 +253,7 @@ class LoLInterface:
         self.list.bind("<Up>", self.OnEntryUp)
         self.listbox.bind('<Double-Button>', self.double_click2)
 
+        self.listesansdoublon = []
         self.window.mainloop()
 
     def make_calendar(self):
@@ -274,15 +277,12 @@ class LoLInterface:
 
                 init_calendar(nameF)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> ec2bf0d5c175a79ca753b2f659a8a831ede06902
     def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
         roles = []
         main_role = None
 
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid)
+        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count = 100)
         list_containing_all_roles = []
         for a in range(games):
             temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
@@ -369,7 +369,8 @@ class LoLInterface:
 
         # Get the combo item
         self.my_region = self.combo.get()
-
+        print(self.my_region)
+        print(self)
         # If statement to check if Summoner Entry is correct
         if self.combo_player.get() == "" or self.combo_player.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
             messagebox.showerror(title="Error!", message="You must select a summoner name and region.")
@@ -379,9 +380,11 @@ class LoLInterface:
                 name = self.combo_player.get()
                 nameF = name[:-1]
                 me = self.watcher.summoner.by_name(self.my_region, nameF)
+                self.puuid = me["puuid"]
 
                 # Get the summoner ranked info
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
+                gender_info=self.determine_if_female(self.puuid,10)
             except HTTPError:
                 messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
                                                              " api key"
@@ -407,6 +410,7 @@ Losses: {my_ranked_stats[0]['losses']}\n
 Games: {my_ranked_stats[0]['wins'] + my_ranked_stats[0]['losses']}\n
 Winrate: {round(winrate)}%\n
 HotSreak: {my_ranked_stats[0]['hotStreak']}\n
+Gender Info: {gender_info}\n
 """)
                 except IndexError:
                     messagebox.showwarning(title="Atención!", message="The player has not completed the placement"
@@ -426,7 +430,9 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
         return
 
 
-    def reseau2(self,puuid):
+    def reseau2(self,puuid,taille):
+        if len(self.all_players2) == taille:
+            return self.all_players2
         try:
             temp_matches0 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid,count=20)
         except:
@@ -474,29 +480,29 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 self.all_players2 = list(set(self.all_players2))
             #print(self.all_players)
                 print(len(self.all_players2))
-                if (len(self.all_players2) > 9):
+                if (len(self.all_players2) == taille):
                     print(self.all_players2)
                     return self.all_players2
 
-        self.reseau2(self.all_players2[self.rec + 1])
+        self.reseau2(self.all_players2[self.rec + 1],taille)
 
 
 
 
 
-    def ajoutbase(self):
-        for b in range(len(self.all_players2)):
+    def ajoutbase_reseau(self,reseau_liste,nbgame):
+        for b in range(len(reseau_liste)):
             init = False
             try:
-                me3 = self.watcher.summoner.by_puuid(self.my_region, self.all_players2[b])
+                me3 = self.watcher.summoner.by_puuid(self.my_region, reseau_liste[b])
             except:
                 time.sleep(1)
-                me3 = self.watcher.summoner.by_puuid(self.my_region, self.all_players2[b])
+                me3 = self.watcher.summoner.by_puuid(self.my_region, reseau_liste[b])
             try:
-                self.my_matches4 = self.watcher.match.matchlist_by_puuid(self.my_region, self.all_players2[b], count=10)
+                self.my_matches4 = self.watcher.match.matchlist_by_puuid(self.my_region, reseau_liste[b], count=nbgame)
             except:
                 time.sleep(1)
-                self.my_matches4 = self.watcher.match.matchlist_by_puuid(self.my_region, self.all_players2[b], count=10)
+                self.my_matches4 = self.watcher.match.matchlist_by_puuid(self.my_region, reseau_liste[b], count=nbgame)
 
             print("NOMBREDEGAMEDECEMEC", len(self.my_matches4))
             for j in range(len(self.my_matches4)):
@@ -504,7 +510,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 try:
                     match_detail_choixmatch = self.watcher.match.by_id(self.my_region, self.my_matches4[int(j)])
                 except:
-                    time.sleep(1)
+                    time.sleep(2)
                     match_detail_choixmatch = self.watcher.match.by_id(self.my_region, self.my_matches4[int(j)])
 
                 liste_part_puid = match_detail_choixmatch['metadata']['participants']
@@ -555,34 +561,16 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                     init = True
         print("FIN")
 
-    def reseau(self,puuid):
-        x=0
-        print(x)
-        self.my_matches2 = self.watcher.match.matchlist_by_puuid(self.my_region, puuid)
+    def determine_if_female(self, puid, games):  # str
+        if self.determine_role_by_puid(puid,games) == 'Support' and self.percentage_of_female_caracters_played(puid,games) > 0.9:
+            return 'tres probable'
+        if self.percentage_of_female_caracters_played(puid, games) > 0.9:
+            return 'probable'
+        if self.percentage_of_female_caracters_played(puid, games) > 0.7:
+            return 'un peu moins probable'
+        return 'tres peu probable'
 
-        match_detail_choixmatch = self.watcher.match.by_id(self.my_region, self.my_matches2[0])
-        #print(match_detail_choixmatch)
-        liste_part_puid2 = match_detail_choixmatch['metadata']['participants']
-        for i in liste_part_puid2:
-            self.liste_reseau_id.append(i)
-            self.liste_reseau_id = list(set(self.liste_reseau_id))
-            print("test1",self.liste_reseau_id)
-
-
-            for j in range(len(self.liste_reseau_id)):
-                me = self.watcher.summoner.by_puuid(self.my_region, self.liste_reseau_id[j])["name"]
-                print(me)
-
-                self.liste_reseau_name.append(me)
-                self.liste_reseau_name = list(set(self.liste_reseau_name))
-                print("pseudo",self.liste_reseau_name)
-
-        self.reseau(self.liste_reseau_id[x+1])
-        print("test", liste_part_puid2)
-
-
-    def create_dataset_and_add(self):
-
+    def add_one_person(self):
         init = False
         self.my_region = self.combo.get()
         # self.text.get() = summonername
@@ -601,16 +589,56 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
             except UnicodeEncodeError:
                 messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
             else:
-                #self.savePlayers()
+                # self.savePlayers()
                 self.save_list_Players(self.text.get())
 
-
                 self.puuid = me['puuid']
-                self.reseau2(self.puuid)
-                # a = asyncio.get_event_loop()
-                # a.create_task(every(10*60,self.ajoutbase))
-                # a.run_forever()
-                self.ajoutbase()
+                print(self.puuid)
+                puuid_liste=[self.puuid]
+                self.ajoutbase_reseau(puuid_liste,50)
+
+
+    def create_dataset_and_add(self):
+        while True:
+            init = False
+            self.my_region = self.combo.get()
+            # self.text.get() = summonername
+            if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
+                messagebox.showerror(title="Error!", message="You must enter a summoner name and region.")
+            else:
+                try:
+                    print("")
+                    me = self.watcher.summoner.by_name(self.my_region, self.text.get())
+                    print("test", me)
+                    print("testowo", me["name"])
+                except HTTPError:
+                    messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
+                                                                 " api key"
+                                                                 " or the Summoner does not exist in the specified region")
+                except UnicodeEncodeError:
+                    messagebox.showerror(title="Error!", message="Bad encoding.. Try with other Summoner.")
+                else:
+                    #self.savePlayers()
+                    self.save_list_Players(self.text.get())
+
+
+                    self.puuid = me['puuid']
+                    self.reseau2(self.puuid,10) #retourne all_player2 qui contient tout les membres d'un réseau
+
+                    # a = asyncio.get_event_loop()
+                    # a.create_task(every(10*60,self.ajoutbase_reseau))
+                    # a.run_forever()
+
+
+                    self.ajoutbase_reseau(self.all_players2,5)
+                    time.sleep(60*3)
+
+
+    def run_db_scan(self):
+        s = Thread(target=self.create_dataset_and_add)
+
+        s.start()
+
 
 
 
@@ -804,6 +832,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
                 self.list.bind("<Return>", self.OnDoubleClick)
                 self.last_20.config(text=f"Last 20 games of {me['name']}")
 
+
     def OnDoubleClick(self, event):
         """
         Function that allows user to interact with Listbox items by double clicking them and
@@ -859,6 +888,7 @@ HotSreak: {my_ranked_stats[0]['hotStreak']}\n
             'Total Taken Damage': dano_recibido,
             'Result': win
         }
+
         # Create pandas Dataframe
         df = pd.DataFrame(data)
         df['Role'].replace(to_replace=dict(UTILITY='SUPPORT'), inplace=True)
@@ -1252,13 +1282,27 @@ Win Rate: {winrate}%
             f.close()
 
     def save_list_Players(self,name):
+        exist = False
+
+        self.listesansdoublon.append(name)
+        l = list(set(self.listesansdoublon))
         try:
+            with open('players_list.txt') as fi:
+                re = fi.read()
+                if f'{name}' in fi:
+                    exist = True
             with open('players_list.txt', mode='a') as f:
-                f.writelines(f"{name}\n")
+                if not exist:
+                    f.writelines(f"{l[0]}\n")
             f.close()
         except UnicodeEncodeError:
+            with open('players_list.txt', encoding='utf-8') as fi:
+                re = fi.read()
+                if f'{name}' in fi:
+                    exist = True
             with open('players_list.txt', mode='a', encoding='utf-8') as f:
-                f.writelines(f"{name}\n")
+                if not exist:
+                    f.writelines(f"{name}\n")
             f.close()
 
     def loadPlayers(self):
@@ -1406,3 +1450,4 @@ Win Rate: {winrate}%
 
 if __name__ == "__main__":
     LI = LoLInterface()
+

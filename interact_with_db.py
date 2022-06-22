@@ -8,7 +8,7 @@ class Data_base:
         try:
             print('===================================================================================')
             # Connect to DB and create a cursor
-            self.sqliteConnection = sqlite3.connect(name)
+            self.sqliteConnection = sqlite3.connect(name,check_same_thread=False)
             self.cursor = self.sqliteConnection.cursor()
             print('DB Init')
 
