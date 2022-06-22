@@ -22,9 +22,9 @@ class LoLInterface:
     """
 
     def __init__(self):
-        self.database = Data_base("LienMinh.db")
+        self.database = Data_base("LienMinh2.db")
         # Api key needed to work with Riot Api
-        self.api_key = 'RGAPI-4d122c08-be26-4272-95d9-85484c886391'
+        self.api_key = 'RGAPI-804a584e-3752-4b62-878e-4da1da7f7b34'
 
         # LolWatcher instance creation
         self.watcher = LolWatcher(self.api_key)
