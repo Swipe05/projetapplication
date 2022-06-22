@@ -36,10 +36,6 @@ class HeureEtDate:
     def get_dict_num(self, month, year):
         dict_return = {}
         data = self.get_all_data_a_month(month, year)
-        # print(data)
-        # all_day_heure = [x[1] for x in data]
-
-        # all_day = [(x.split(" - "))[0] for x in all_day_heure]
         for element in data:
             MdateY_heure = element[1].split(" - ")
             if MdateY_heure[0] in dict_return.keys():
@@ -47,7 +43,13 @@ class HeureEtDate:
             else:
                 dict_return[MdateY_heure[0]] = 1
         return dict_return
+    def get_heure_of_date(self, month, day, year):
+        rq = f"{month}/{day}/{year}"
+        data = self.get_data_of_a_day(rq)
+        return [ (x[1].split(" - "))[1] for x in data]
+
 
 
 get_swipe = HeureEtDate("HentEye")
 print(get_swipe.get_dict_num("04","2022"))
+print(get_swipe.get_heure_of_date("04","04","2022"))
