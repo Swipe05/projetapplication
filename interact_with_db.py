@@ -215,9 +215,10 @@ class Data_base:
             f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
         if listOfTable:  # if listOfTable == []:
             print('Table existes')
+            query = f"DROP TABLE {table_name}"
+            self.cursor.execute(query)
             return
-        query = f"DROP TABLE {table_name}"
-        self.cursor.execute(query)
+
 
     # dict_change = {"column":"new_val"}
     # Following is an example, which will update ADDRESS for a customer whose ID is 6.

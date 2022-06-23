@@ -19,6 +19,7 @@ from datetime import datetime
 from interact_with_db import *
 from variable import every
 import time
+import matplotlib.pyplot as plt
 
 
 
@@ -105,7 +106,9 @@ class LoLInterface():
     def __init__(self):
         self.database = Data_base("LienMinh.db")
         # Api key needed to work with Riot Api
-        self.api_key = 'RGAPI-af97bdf8-b6d2-4fbf-90f4-80814ff9d76b'
+        self.api_key = 'RGAPI-560395a2-5b60-4958-be9d-27d69ec680bb'
+
+
 
         # LolWatcher instance creation
         self.watcher = LolWatcher(self.api_key)
@@ -231,14 +234,14 @@ class LoLInterface():
         self.view_active = Button(text="View active game", command=self.thread,
                                   font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         # self.view_active.grid(row=7, column=0, sticky=EW, pady=10, columnspan=3)
-        self.top_p = Button(text="Top Challenger Players", command=self.top_Players,
+        self.top_p = Button(text="Delete Database", command=self.delete_alltables,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
         self.build_truc = Button(text="Creation reseau et database", command=self.run_db_scan,
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
 
-        self.addaperson = Button(text="Add one person to database", command=self.add_one_person,
+        self.addaperson = Button(text="Add one person to database", command=self.run_db_scan2,
                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
 
@@ -277,19 +280,32 @@ class LoLInterface():
 
                 init_calendar(nameF)
 
-
-    def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
+    def delete_alltables(self):
+        try:
+            self.database.drop_table("Partie")
+            self.database.drop_table("all_summoner")
+        except:
+            print("No such tables")
+    def determine_role_by_puid(self):  # coute beaucoup de requêtes
         roles = []
-        main_role = None
+        main_role = ''
 
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count = 100)
+        # matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count = 100)
+        # list_containing_all_roles = []
+        # for a in range(games):
+        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     role = temp_match_detail['info']['participants'][
+        #         self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])][
+        #         'individualPosition']
+        #     list_containing_all_roles.append(role)
+
+        name = self.combo_player.get()[:-1]
         list_containing_all_roles = []
-        for a in range(games):
-            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            role = temp_match_detail['info']['participants'][
-                self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])][
-                'individualPosition']
-            list_containing_all_roles.append(role)
+        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["individualPosition"])
+        for a in query:
+            list_containing_all_roles.append(a[0])
+
+
         frequency = {'MIDDLE': 0, 'TOP': 0, 'JUNGLE': 0, 'SUPPORT': 0, 'BOTTOM': 0}
         for elem in list_containing_all_roles:
             if elem in frequency:
@@ -298,44 +314,76 @@ class LoLInterface():
                 frequency[elem] = 1
 
         for keys, values in frequency.items():
-            if values / games > 0.7:
-                main_role = keys
+            if values / len(query) > 0.3:
+                main_role += keys + ' '
+
 
         return main_role
 
-    def percentage_of_female_caracters_played(self, puid, games):
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
+    def percentage_of_female_caracters_played(self):
+        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
         list_containing_all_champs = []
         percentage = 0
-        for a in range(games):
-            print(a)
-            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        # for a in range(games):
+        #     print(a)
+        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #
+        #     champ = temp_match_detail['info']['participants'][
+        #         self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['championName']
+        #     print(champ)
+        #     print(self.watcher.summoner.by_puuid(self.my_region, puid)['name'])
 
-            champ = temp_match_detail['info']['participants'][
-                self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['championName']
-            print(champ)
-            print(self.watcher.summoner.by_puuid(self.my_region, puid)['name'])
-            time.sleep(2)
-            if self.champ_dict[champ] == 1:
-                percentage += 1
-            list_containing_all_champs.append(champ)
-        percentage = percentage / games
-        print(percentage)
-        print(list_containing_all_champs)
+        #     time.sleep(2)
+        name = self.combo_player.get()[:-1]
+        champ = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"',["championName"])
+        print(self.combo_player.get(),"owo")
+        print(champ)
+        # for a in
+        #     if self.champ_dict[champ] == 1:
+        #         percentage += 1
+        #     list_containing_all_champs.append(champ)
+        champion_list = []
+        for a in champ:
+            champion_list.append(a[0])
+
+        for a in champion_list:
+            if self.champ_dict[a] == 1:
+                percentage +=1
+        print(champion_list)
+        percentage = percentage/len(champion_list)
         return percentage
 
-    def percentage_of_role_played(self, puid, role, games):
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
+
+
+
+        # percentage = percentage / games
+        # print(percentage)
+        # print(list_containing_all_champs)
+        # return percentage
+
+    def percentage_of_role_played(self,role):
+        name = self.combo_player.get()[:-1]
+        role_query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["individualPosition"])
+        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
         percentage = 0
-        for a in range(games):
-            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            match_role = temp_match_detail['info']['participants'][self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['individualPosition']
-            time.sleep(1)
+        # for a in range(games):
+        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     match_role = temp_match_detail['info']['participants'][self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['individualPosition']
+        #     time.sleep(1)
+        #     if match_role == role:
+        #         percentage += 1
+        #
+        # percentage = percentage / games
+        # print(percentage)
+        role_list = []
+        for a in role_query:
+            role_list.append(a[0])
+
+        for match_role in role_list:
             if match_role == role:
                 percentage += 1
 
-        percentage = percentage / games
-        print(percentage)
+        percentage = percentage/len(role_query)
         return percentage
 
 
@@ -384,7 +432,9 @@ class LoLInterface():
 
                 # Get the summoner ranked info
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
-                gender_info=self.determine_if_female(self.puuid,10)
+                gender_info=self.percentage_of_female_caracters_played()
+                main_role=self.determine_role_by_puid()
+
             except HTTPError:
                 messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
                                                              " api key"
@@ -411,6 +461,7 @@ Games: {my_ranked_stats[0]['wins'] + my_ranked_stats[0]['losses']}\n
 Winrate: {round(winrate)}%\n
 HotSreak: {my_ranked_stats[0]['hotStreak']}\n
 Gender Info: {gender_info}\n
+Most Played Role: {main_role}\n
 """)
                 except IndexError:
                     messagebox.showwarning(title="Atención!", message="The player has not completed the placement"
@@ -489,6 +540,203 @@ Gender Info: {gender_info}\n
 
 
 
+    def when_player_plays(self):# return dict {lundi:num_of_games,mardi:'78    etc..}
+        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
+        name = self.text.get()[:-1]
+
+        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["timestamp"])
+        list_containing_all_timestamps_from_last_games = []
+        for a in query:
+            list_containing_all_timestamps_from_last_games.append(a[0])
+
+        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
+        dict_to_return = {}
+        # for a in range(games):
+        #     try:
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     except:
+        #         time.sleep(4)
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     timestamp = temp_match_detail['info']['gameStartTimestamp']
+        #     list_containing_all_timestamps_from_last_games.append(timestamp)
+        for timestamp in list_containing_all_timestamps_from_last_games:
+            dt_object = datetime.fromtimestamp(timestamp)
+
+            print(dt_object.weekday())
+            day_occ = dt_object.weekday()
+            if dico_jours[day_occ] in dict_to_return:
+                dict_to_return[dico_jours[day_occ]].append(timestamp)
+            else:
+                dict_to_return[dico_jours[day_occ]] = []
+            print(dt_object.weekday())
+            time.sleep(3)
+        print(list_containing_all_timestamps_from_last_games)
+        print(dict_to_return)
+        return dict_to_return
+
+    def when_player_plays_hour(self):# return dict {lundi:num_of_games,mardi:'78    etc..}
+        name = self.text.get()
+        print("test",name)
+        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["timestamp"])
+        print('-------------------------------query-----------------------------------',query)
+        list_containing_all_timestamps_from_last_games = []
+        for timestamp in query:
+            list_containing_all_timestamps_from_last_games.append(timestamp[0])
+        print('uuuuuuuuuu',list_containing_all_timestamps_from_last_games)
+
+
+        # matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
+        # list_containing_all_timestamps_from_last_games = []
+        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
+        dict_to_return = {}
+
+        for timestamp in list_containing_all_timestamps_from_last_games:
+            dt_object = datetime.fromtimestamp(float(timestamp))
+            print(dt_object.day)
+            day_occ = dt_object.weekday()
+            print('owo')
+            if dico_jours[day_occ] in dict_to_return:
+                dict_to_return[dico_jours[day_occ]].append(datetime.utcfromtimestamp(float(timestamp)).strftime('%H'))
+            else:
+                dict_to_return[dico_jours[day_occ]] = []
+
+        # for a in range(games):
+        #     try:
+        #         print(games)
+        #         print(a)
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     except:
+        #         time.sleep(4)
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     timestamp = temp_match_detail['info']['gameStartTimestamp']
+        #     list_containing_all_timestamps_from_last_games.append(timestamp)
+        #     dt_object = datetime.fromtimestamp(timestamp/1000)
+        #     day_occ = dt_object.weekday()
+        #
+        #     if dico_jours[day_occ] in dict_to_return:
+        #         dict_to_return[dico_jours[day_occ]].append(datetime.utcfromtimestamp(timestamp/1000).strftime('%H'))
+        #     else:
+        #         dict_to_return[dico_jours[day_occ]] = []
+        #     print(dt_object.weekday())
+        #     time.sleep(4)
+        print(list_containing_all_timestamps_from_last_games)
+        print(dict_to_return)
+        return dict_to_return
+
+    def graph_by_hour(self,day):#day is a string 'Lundi' for example
+        #the goal of this function is to display a graph of the frequency of game played for the period of times of 2 hours
+        timeperiods = [[x,x+2] for x in range(23) if x%2==0]#[[0, 2], [2, 4], [4, 6], [6, 8], [8, 10], [10, 12]..]
+        left = [range(1,12)]
+
+
+        dict_hours = self.when_player_plays_hour()
+        print(dict_hours)
+        list_hours = dict_hours[day]
+        print(list_hours)
+
+        # x-coordinates of left sides of bars
+        left = [x for x in range(24)]
+
+        # heights of bars
+        tick_label = [x for x in range(24)]  # nb de games par lapse de temps
+
+        # labels for bars
+        height = []  # laspe de temps
+        for x in range(24):
+            height.append(0)
+
+        for x in list_hours:
+            height[int(x)] +=1
+
+
+
+        # plotting a bar chart
+        plt.bar(left, height, tick_label=tick_label,
+                width=0.8, color=['blue', 'green'])
+
+        # naming the x-axis
+        plt.xlabel('heure de la journée')
+        # naming the y-axis
+        plt.ylabel('nombre de partie jouées')
+        # plot title
+        plt.title(day.upper())
+
+        # function to show the plot
+        plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def when_player_plays_freq(self,puid,games):# return dict {lundi:num_of_games,mardi:'78    etc..}
+        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
+        list_containing_all_timestamps_from_last_games = []
+        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
+        dict_to_return = {}
+        for a in range(games):
+            try:
+                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+            except:
+                time.sleep(2)
+                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+            timestamp = temp_match_detail['info']['gameStartTimestamp']
+            list_containing_all_timestamps_from_last_games.append(timestamp)
+            dt_object = datetime.fromtimestamp(timestamp/1000)
+            day_occ = dt_object.weekday()
+            if dico_jours[day_occ] in dict_to_return:
+                dict_to_return[dico_jours[day_occ]] +=1
+            else:
+                dict_to_return[dico_jours[day_occ]] = 1
+            print(dt_object.weekday())
+            time.sleep(4)
+        print(list_containing_all_timestamps_from_last_games)
+        print(dict_to_return)
+        return dict_to_return
+
+    def graph_games_by_freq(self,puid,games):
+        # x-coordinates of left sides of bars
+        dict_we_gonna_use = {}
+        left = [1, 2, 3, 4, 5, 6, 7]
+
+        # heights of bars
+        height = [10, 24, 36, 40, 89, 12, 50]  # nb de games par lapse de temps
+        height = []
+        dict_of_days = self.when_player_plays_freq(puid,games)
+
+        for key,value in dict_of_days.items():
+            height.append(value)
+        left = list(range(1,len(dict_of_days)+1))
+
+        # labels for bars
+        tick_label = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']  # laspe de temps
+        #tick_label = list(set(dict_of_days) & set(tick_label))
+        tick_label = [x for x in tick_label if x in list(dict_of_days)]
+        print(tick_label)
+        height=[]
+        for a in tick_label:#remettre dans l'ordre
+            height.append(dict_of_days[a])
+
+        # plotting a bar chart
+        plt.bar(left, height, tick_label=tick_label,
+                width=0.8, color=['red', 'green'])
+
+        # naming the x-axis
+        plt.xlabel('x - axis')
+        # naming the y-axis
+        plt.ylabel('y - axis')
+        # plot title
+        plt.title('My bar chart!')
+
+        # function to show the plot
+        plt.show()
 
     def ajoutbase_reseau(self,reseau_liste,nbgame):
         for b in range(len(reseau_liste)):
@@ -596,6 +844,7 @@ Gender Info: {gender_info}\n
                 print(self.puuid)
                 puuid_liste=[self.puuid]
                 self.ajoutbase_reseau(puuid_liste,50)
+                time.sleep(60 * 60)
 
 
     def create_dataset_and_add(self):
@@ -623,19 +872,24 @@ Gender Info: {gender_info}\n
 
 
                     self.puuid = me['puuid']
-                    self.reseau2(self.puuid,10) #retourne all_player2 qui contient tout les membres d'un réseau
+                    self.reseau2(self.puuid,2) #retourne all_player2 qui contient tout les membres d'un réseau
 
                     # a = asyncio.get_event_loop()
                     # a.create_task(every(10*60,self.ajoutbase_reseau))
                     # a.run_forever()
 
 
-                    self.ajoutbase_reseau(self.all_players2,5)
-                    time.sleep(60*3)
+                    self.ajoutbase_reseau(self.all_players2,10)
+                    time.sleep(60*60)
 
 
     def run_db_scan(self):
         s = Thread(target=self.create_dataset_and_add)
+
+        s.start()
+
+    def run_db_scan2(self):
+        s = Thread(target=self.add_one_person)
 
         s.start()
 
@@ -690,6 +944,8 @@ Gender Info: {gender_info}\n
                 self.list.bind("<Double-1>", self.OnDoubleClick)
                 self.list.bind("<Return>", self.OnDoubleClick)
                 self.last_20.config(text=f"Last 20 games of {me['name']}")
+
+
 
 
                 #self.reseau2(self.puuid)
@@ -833,12 +1089,14 @@ Gender Info: {gender_info}\n
                 self.last_20.config(text=f"Last 20 games of {me['name']}")
 
 
+
     def OnDoubleClick(self, event):
         """
         Function that allows user to interact with Listbox items by double clicking them and
             shows a pop up window with a Treeview with all game selected info
         """
-
+        self.graph_by_hour('Samedi')
+        print('owo')
         self.new_win.config(cursor='top_left_arrow')
         item = self.list.curselection()
         item2 = ''.join(map(str, item))
@@ -1282,28 +1540,33 @@ Win Rate: {winrate}%
             f.close()
 
     def save_list_Players(self,name):
-        exist = False
 
-        self.listesansdoublon.append(name)
+
+
+
         l = list(set(self.listesansdoublon))
         try:
-            with open('players_list.txt') as fi:
-                re = fi.read()
-                if f'{name}' in fi:
-                    exist = True
-            with open('players_list.txt', mode='a') as f:
-                if not exist:
-                    f.writelines(f"{l[0]}\n")
+
+            with open('players_list.txt', mode='a+') as f:
+
+                f.writelines(f"{name}\n")
+                # lines = f.readlines()
+                # line_set= set(lines)
+                # for line in line_set:
+                #     f.write(line)
             f.close()
         except UnicodeEncodeError:
-            with open('players_list.txt', encoding='utf-8') as fi:
-                re = fi.read()
-                if f'{name}' in fi:
-                    exist = True
-            with open('players_list.txt', mode='a', encoding='utf-8') as f:
-                if not exist:
-                    f.writelines(f"{name}\n")
+
+            with open('players_list.txt', mode='a+', encoding='utf-8') as f:
+
+                f.writelines(f"{name}\n")
+                # lines = f.readlines()
+                # line_set= set(lines)
+                # for line in line_set:
+                #     f.write(line)
             f.close()
+
+
 
     def loadPlayers(self):
         self.listbox.delete(0, END)
@@ -1361,6 +1624,7 @@ Win Rate: {winrate}%
         self.window.clipboard_append(content[0])
         self.text.insert(0, content[0])
         self.combo.set(content[1])
+        self.graph_by_hour('Samedi')
 
     def double_click3(self, event):
         """Called when user double clicks element from ListBox"""
