@@ -1,6 +1,8 @@
 import mariadb
 import sys
 
+from requests import ReadTimeout
+
 
 class Data_base:
     def __init__(self) -> None:
@@ -30,6 +32,7 @@ class Data_base:
         self.cursor.execute("use LienMinh")
         for database in databaseList:
             print(database)
+        self.cursor.execute("SET GLOBAL innodb_strict_mode = 0;")
 
         print('===================================================================================')
 
@@ -47,14 +50,14 @@ class Data_base:
         if type(table_columns) == list:
             for ele in table_columns:
                 if count < len(table_columns):
-                    if f'col_{ele}' == primary_key:
+                    if f'col_{ele}' in primary_key:
                         query += f''' col_{ele}  varchar(30) , '''
                         count += 1
                         continue
                     query += f''' col_{ele}  text , '''
                     count += 1
                 else:
-                    if f'col_{ele}' == primary_key:
+                    if f'col_{ele}' in primary_key:
                         query += f''' col_{ele}  varchar(30)'''
                         count += 1
                         continue
@@ -71,9 +74,9 @@ class Data_base:
                 query += ", PRIMARY KEY ( "
                 for key in primary_key:
                     if primary_key.index(key) == len(primary_key) - 1:
-                        query += f" col_{key} )  "
+                        query += f" {key} )  "
                     else:
-                        query += f" col_{key}, "
+                        query += f" {key}, "
             if type(primary_key) == str:
                 query += f" , PRIMARY KEY ({primary_key})  "
 
@@ -85,6 +88,9 @@ class Data_base:
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
     def insert_data_with_columns_names(self, table_name, dict_data):
         table_name = self.name_with_espace(table_name)
+        for ele in dict_data.keys():
+            if (ele not in self.list_columns(table_name)):
+                    self.add_column(table_name, f'col_{ele}')
         try:
             query = f'''INSERT INTO {table_name} ('''
             list_key = []
@@ -92,14 +98,11 @@ class Data_base:
             for ele in dict_data.items():
                 list_key.append(f'col_{ele[0]}')
                 list_value.append('"' + ele[1] + '"')
-                # print("ele is ", ele)
             query = query + ",".join(list_key) + ') VALUES (' + ",".join(list_value) + ");"
             print(query)
             self.cursor.execute(query)
-            # self.sqliteConnection.commit()
         except Exception as error:
-            print("error is  ",error)
-            pass
+            print("error :",error)
 
     # insert data to table
     def insert_multi_row_with_column_name(self, table_name, dict_data):
@@ -109,8 +112,6 @@ class Data_base:
             list_columns = list(dict_data.keys())
             list_value = list(dict_data.values())
             if type(list_value[0]) != int:
-                # print("list value = ", list_value)
-                # print("list columns = ", list_columns)
                 ele_dict[list_columns[0]] = list_value[0]
                 for i in range(1,len(list_value[1])):
                     for j in range(1,len(list_columns)):
@@ -128,7 +129,7 @@ class Data_base:
                 self.insert_data_with_columns_names(table_name, ele_dict)
 
         except Exception as error:
-            # print(error)
+            print(error)
             pass
 
     # ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
@@ -240,14 +241,18 @@ class Data_base:
 
     # create and add data to a table
     def read_data_from_a_dict(self, dictionary, name="Partie", primary_key="timestamp", table_all_name = "all_summoner"):
-        primary_key = "col_" + primary_key
+        if primary_key[0:4]=="col_":
+            pass
+        elif type(primary_key) == list:
+           for k in range(len(primary_key)):
+            primary_key[k] = "col_" + primary_key[k]
+        else:
+            primary_key = "col_" + primary_key
         list_keys = list(dictionary.keys())
-        list_values = list(dictionary.values())
-        print("list key = ", list_keys)
-        print("lsit values = ", list_values)
+        # list_values = list(dictionary.values())
         self.create_table(name, list_keys, primary_key)
-        self.create_table(table_all_name,["summonerName"] ,primary_key = "col_summonerName")
-        self.insert_data_with_columns_names(table_all_name,{"summonerName":dictionary.get("col_summonerName")})
+        self.create_table(table_all_name,["summonerName"] ,primary_key = ["col_summonerName"])
+        self.insert_data_with_columns_names(table_all_name,{"summonerName":dictionary.get("summonerName")})
         self.insert_multi_row_with_column_name(name, dictionary)
 
     '''
@@ -258,15 +263,19 @@ class Data_base:
 
     def list_columns(self,table_name):
         table_name = self.name_with_espace(table_name)
-        cols = []
-        self.cursor.execute(f"SELECT * FROM {table_name}")
-        for col in self.cursor.description:
-            cols.append(col[0])
-        return cols
+        fiel = self.cursor.execute(f"select * from {table_name}")
+        num_fields = len(self.cursor.description)
+        
+        field_names = [i[0] for i in self.cursor.description]
+        return field_names
     def add_column(self, table_name, column_name):
-        table_name - self.name_with_espace(table_name)
+        table_name = self.name_with_espace(table_name)
+        
+        col = self.list_columns(table_name)
+        if (f'{column_name}' in col):
+            return
         col_name = str(column_name)
-        query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} varchar(255);"
+        query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} text;"
         self.cursor.execute(query)
 
 
