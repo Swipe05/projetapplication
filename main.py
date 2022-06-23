@@ -16,7 +16,7 @@ import asyncio
 from calendar_DB import *
 from threading import Thread
 from datetime import datetime
-from interact_with_db import *
+from mariaDB import *
 from variable import every
 import time
 import matplotlib.pyplot as plt
@@ -104,7 +104,7 @@ class LoLInterface():
     """
 
     def __init__(self):
-        self.database = Data_base("LienMinh.db")
+        self.database = Data_base()
         # Api key needed to work with Riot Api
         self.api_key = 'RGAPI-560395a2-5b60-4958-be9d-27d69ec680bb'
 
@@ -241,6 +241,10 @@ class LoLInterface():
                             font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
 
+        self.build_truc = Button(text="Stats", command=self.graph_games_by_freq,
+                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.build_truc.grid(row=13, column=0, sticky=EW, columnspan=3)
+
         self.addaperson = Button(text="Add one person to database", command=self.run_db_scan2,
                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
         self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
@@ -279,6 +283,8 @@ class LoLInterface():
             else:
 
                 init_calendar(nameF)
+
+
 
     def delete_alltables(self):
         try:
@@ -676,32 +682,53 @@ Most Played Role: {main_role}\n
 
 
 
-    def when_player_plays_freq(self,puid,games):# return dict {lundi:num_of_games,mardi:'78    etc..}
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
-        list_containing_all_timestamps_from_last_games = []
+    def when_player_plays_freq(self):# return dict {lundi:num_of_games,mardi:'78    etc..}
+        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
+        #list_containing_all_timestamps_from_last_games = []
+
+
         dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
         dict_to_return = {}
-        for a in range(games):
-            try:
-                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            except:
-                time.sleep(2)
-                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            timestamp = temp_match_detail['info']['gameStartTimestamp']
-            list_containing_all_timestamps_from_last_games.append(timestamp)
-            dt_object = datetime.fromtimestamp(timestamp/1000)
+
+        name = self.text.get()
+        query  = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["timestamp"])
+        list_containing_all_timestamps_from_last_games=[]
+        for a in query:
+            list_containing_all_timestamps_from_last_games.append(a[0])
+
+        for timestamp in list_containing_all_timestamps_from_last_games:
+            dt_object = datetime.fromtimestamp(float(timestamp))
             day_occ = dt_object.weekday()
             if dico_jours[day_occ] in dict_to_return:
-                dict_to_return[dico_jours[day_occ]] +=1
+                dict_to_return[dico_jours[day_occ]] += 1
             else:
                 dict_to_return[dico_jours[day_occ]] = 1
-            print(dt_object.weekday())
-            time.sleep(4)
+
+
+
+
+
+        # for a in range(games):
+        #     try:
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     except:
+        #         time.sleep(2)
+        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+        #     timestamp = temp_match_detail['info']['gameStartTimestamp']
+        #     list_containing_all_timestamps_from_last_games.append(timestamp)
+        #     dt_object = datetime.fromtimestamp(timestamp/1000)
+        #     day_occ = dt_object.weekday()
+        #     if dico_jours[day_occ] in dict_to_return:
+        #         dict_to_return[dico_jours[day_occ]] +=1
+        #     else:
+        #         dict_to_return[dico_jours[day_occ]] = 1
+        #     print(dt_object.weekday())
+        #     time.sleep(4)
         print(list_containing_all_timestamps_from_last_games)
         print(dict_to_return)
         return dict_to_return
 
-    def graph_games_by_freq(self,puid,games):
+    def graph_games_by_freq(self):
         # x-coordinates of left sides of bars
         dict_we_gonna_use = {}
         left = [1, 2, 3, 4, 5, 6, 7]
@@ -709,7 +736,7 @@ Most Played Role: {main_role}\n
         # heights of bars
         height = [10, 24, 36, 40, 89, 12, 50]  # nb de games par lapse de temps
         height = []
-        dict_of_days = self.when_player_plays_freq(puid,games)
+        dict_of_days = self.when_player_plays_freq()
 
         for key,value in dict_of_days.items():
             height.append(value)
@@ -729,11 +756,11 @@ Most Played Role: {main_role}\n
                 width=0.8, color=['red', 'green'])
 
         # naming the x-axis
-        plt.xlabel('x - axis')
+        plt.xlabel('jour')
         # naming the y-axis
-        plt.ylabel('y - axis')
+        plt.ylabel('parties jouées')
         # plot title
-        plt.title('My bar chart!')
+        plt.title('Frequence de parties sur les dernières')
 
         # function to show the plot
         plt.show()
@@ -802,10 +829,10 @@ Most Played Role: {main_role}\n
                                 self.database.add_column("Partie", ele)
 
                         # print(last_dict)
-                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["summonerName","timestamp"])
                     init = True
-                except sqlite3.Error as error:
-                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
+                except :
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["summonerName","timestamp"])
                     init = True
         print("FIN")
 
@@ -843,7 +870,7 @@ Most Played Role: {main_role}\n
                 self.puuid = me['puuid']
                 print(self.puuid)
                 puuid_liste=[self.puuid]
-                self.ajoutbase_reseau(puuid_liste,50)
+                self.ajoutbase_reseau(puuid_liste,10)
                 time.sleep(60 * 60)
 
 
@@ -1095,7 +1122,8 @@ Most Played Role: {main_role}\n
         Function that allows user to interact with Listbox items by double clicking them and
             shows a pop up window with a Treeview with all game selected info
         """
-        self.graph_by_hour('Samedi')
+        #self.graph_by_hour('Samedi')
+        self.graph_games_by_freq()
         print('owo')
         self.new_win.config(cursor='top_left_arrow')
         item = self.list.curselection()
