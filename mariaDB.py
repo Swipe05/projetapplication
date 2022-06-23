@@ -1,74 +1,87 @@
-import sqlite3
+import mariadb
+import sys
 
-
+from requests import ReadTimeout
+from termcolor import colored
 
 class Data_base:
-    def __init__(self, name='LMHT.db') -> None:
+    def __init__(self) -> None:
 
+        print('\033[0;32m===================================================================================\033[0m')
+        # Connect to MariaDB Platform
         try:
-            print('===================================================================================')
-            # Connect to DB and create a cursor
-            self.sqliteConnection = sqlite3.connect(name)
-            self.cursor = self.sqliteConnection.cursor()
-            print('DB Init')
+            conn = mariadb.connect(
+                user="user1",
+                password="password1",
+                host="localhost"
+            )
+        except mariadb.Error as e:
+            print(f"Error connecting to MariaDB Platform: {e}")
+            sys.exit(1)
 
-            # Write a query and execute it with cursor
-            query = 'select sqlite_version();'
-            self.cursor.execute(query)
+        # Get Cursor
+        self.cursor = conn.cursor()
 
-            # Fetch and output result
-            result = self.cursor.fetchall()
-            print('SQLite Version is {}'.format(result))
 
-            # Close the cursor
-            # self.cursor.close()
+        # creating database 
+        self.cursor.execute("CREATE DATABASE IF NOT EXISTS LienMinh;") 
 
-            print('===================================================================================')
+        self.cursor.execute("SHOW DATABASES")
+        databaseList = self.cursor.fetchall()
+        
+        self.cursor.execute("use LienMinh")
+        for database in databaseList:
+            print(database)
+        self.cursor.execute("SET GLOBAL innodb_strict_mode = 0;")
 
-        # Handle errors
-        except sqlite3.Error as error:
-            print('Error occured - ', error)
+
+        print('\033[0;32m===================================================================================\033[0m')
+
+
 
     # create table
     # if data type is text ===> "VARCHAR(255)"
     def name_with_espace(self, name):
         return name.replace(" ","_es_")
+
     def create_table(self, table_name, table_columns, primary_key=""):
-        table_name = self.name_with_espace(table_name)
-        # check if table exists
-        listOfTable = self.cursor.execute(
-            f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
-        if listOfTable:  # if listOfTable == []:
-            print('Table existes')
-            return False
-        query = f""" CREATE TABLE {table_name} ( """
+        # print(f"\n\n\n{primary_key}\n\n\n")
+        query = f""" CREATE TABLE IF NOT EXISTS {table_name}("""
         count = 1
         if type(table_columns) == list:
             for ele in table_columns:
                 if count < len(table_columns):
-                    query += f''' [{ele}]  VARCHAR(255) , '''
+                    if f'col_{ele}' in primary_key:
+                        query += f''' col_{ele}  varchar(30) , '''
+                        count += 1
+                        continue
+                    query += f''' col_{ele}  text , '''
                     count += 1
                 else:
-                    query += f'''[{ele}] VARCHAR(255)'''
+                    if f'col_{ele}' in primary_key:
+                        query += f''' col_{ele}  varchar(30)'''
+                        count += 1
+                        continue
+                    query += f'''col_{ele} text'''
         elif type(table_columns) == dict:
             for element in table_columns.items():
                 if count < len(table_columns):
-                    query += f""" [{element[0]}]   {element[1]} ,"""
+                    query += f""" col_{element[0]}  {element[1]} ,"""
                     count += 1
                 else:
-                    query += f""" [{element[0]}]   {element[1]} """
+                    query += f""" col_{element[0]}   {element[1]} """
         if primary_key != "":
             if type(primary_key) == list or type(primary_key) == tuple:
                 query += ", PRIMARY KEY ( "
                 for key in primary_key:
                     if primary_key.index(key) == len(primary_key) - 1:
-                        query += f" [{key}] )  "
+                        query += f" {key} )  "
                     else:
-                        query += f" [{key}], "
+                        query += f" {key}, "
             if type(primary_key) == str:
                 query += f" , PRIMARY KEY ({primary_key})  "
 
-        query += ''');'''
+        query += ''')ROW_FORMAT=DYNAMIC ;'''
         print(query)
         self.cursor.execute(query)
 
@@ -77,20 +90,24 @@ class Data_base:
     def insert_data_with_columns_names(self, table_name, dict_data):
         table_name = self.name_with_espace(table_name)
         try:
+            for ele in dict_data.keys():
+                if (f'col_{ele}' not in self.list_columns(table_name)):
+                    self.add_column(table_name, f'col_{ele}')
+                    print("\n\n\n \033[0;31mele = col_{}\033[0m \n \033[0;35mlist_column = {}\033[0m\n\n\n  \n\n\n".format(ele,self.list_columns(table_name)))
+        except Exception as e:
+            print("add insert:  ",e)
+        try:
             query = f'''INSERT INTO {table_name} ('''
             list_key = []
             list_value = []
             for ele in dict_data.items():
-                list_key.append("[" + ele[0] + "]")
+                list_key.append(f'col_{ele[0]}')
                 list_value.append('"' + ele[1] + '"')
-                # print("ele is ", ele)
             query = query + ",".join(list_key) + ') VALUES (' + ",".join(list_value) + ");"
             print(query)
             self.cursor.execute(query)
-            self.sqliteConnection.commit()
-        except sqlite3.Error as error:
-            print("error is  ",error)
-            pass
+        except Exception as error:
+            print("error :",error)
 
     # insert data to table
     def insert_multi_row_with_column_name(self, table_name, dict_data):
@@ -100,8 +117,6 @@ class Data_base:
             list_columns = list(dict_data.keys())
             list_value = list(dict_data.values())
             if type(list_value[0]) != int:
-                # print("list value = ", list_value)
-                # print("list columns = ", list_columns)
                 ele_dict[list_columns[0]] = list_value[0]
                 for i in range(1,len(list_value[1])):
                     for j in range(1,len(list_columns)):
@@ -118,8 +133,8 @@ class Data_base:
                     ele_dict[list_columns[j]] = str(list_value[j])
                 self.insert_data_with_columns_names(table_name, ele_dict)
 
-        except sqlite3.Error as error:
-            # print(error)
+        except Exception as error:
+            print(error)
             pass
 
     # ex: insert_data_without_column_name("TEST_TABLE", ['Phuong','35','19.999999'])
@@ -131,8 +146,8 @@ class Data_base:
             query = query + ','.join(list_donne) + ');'
             print(query)
             self.cursor.execute(query)
-            self.sqliteConnection.commit()
-        except sqlite3.Error as error:
+            # self.sqliteConnection.commit()
+        except Exception as error:
             # print("error  is   ", error)
             pass
 
@@ -142,7 +157,7 @@ class Data_base:
         query = f"DELETE FROM {table_name} WHERE {condition}"
         print(query)
         self.cursor.execute(query)
-        self.sqliteConnection.commit()
+        # self.sqliteConnection.commit()
 
     # ex: select_all_data("TEST_TABLE")
     def select_all_data(self, table_name):
@@ -155,7 +170,7 @@ class Data_base:
         for row in output:
             data.append(row)
             print(row)
-        self.sqliteConnection.commit()
+        # self.sqliteConnection.commit()
         print("---------------------------------------------------------------------------------------------")
         return data
 
@@ -210,13 +225,7 @@ class Data_base:
 
     def drop_table(self, table_name):
         table_name = self.name_with_espace(table_name)
-        # check if table exists
-        listOfTable = self.cursor.execute(
-            f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
-        if listOfTable:  # if listOfTable == []:
-            print('Table existes')
-            return
-        query = f"DROP TABLE {table_name}"
+        query = f"DROP TABLE IF EXISTS {table_name}"
         self.cursor.execute(query)
 
     # dict_change = {"column":"new_val"}
@@ -236,17 +245,20 @@ class Data_base:
         return lsi_t
 
     # create and add data to a table
-    def read_data_from_a_dict(self, dictionary, name="partie", primary_key="timestamp", table_all_name = "all_summoner"):
+    def read_data_from_a_dict(self, dictionary, name="Partie", primary_key="timestamp", table_all_name = "all_summoner"):
+        if primary_key[0:4]=="col_":
+            pass
+        elif type(primary_key) == list:
+           for k in range(len(primary_key)):
+            primary_key[k] = "col_" + primary_key[k]
+        else:
+            primary_key = "col_" + primary_key
         list_keys = list(dictionary.keys())
-        list_values = list(dictionary.values())
-        print("list key = ", list_keys)
-        print("lsit values = ", list_values)
+        # list_values = list(dictionary.values())
         self.create_table(name, list_keys, primary_key)
-        self.create_table(table_all_name,["summonerName"] ,primary_key = "summonerName")
+        self.create_table(table_all_name,["summonerName"] ,primary_key = ["col_summonerName"])
         self.insert_data_with_columns_names(table_all_name,{"summonerName":dictionary.get("summonerName")})
         self.insert_multi_row_with_column_name(name, dictionary)
-        # self.insert_data_with_columns_names(dictionary.get(name),dictionary)
-        # print(f'{list_keys} \n {list_values}')
 
     '''
     UPDATE table_name
@@ -256,15 +268,19 @@ class Data_base:
 
     def list_columns(self,table_name):
         table_name = self.name_with_espace(table_name)
-        cols = []
-        self.cursor.execute(f"SELECT * FROM {table_name}")
-        for col in self.cursor.description:
-            cols.append(col[0])
-        return cols
+        fiel = self.cursor.execute(f"select * from {table_name}")
+        num_fields = len(self.cursor.description)
+        
+        field_names = [i[0] for i in self.cursor.description]
+        return field_names
     def add_column(self, table_name, column_name):
-        table_name - self.name_with_espace(table_name)
+        table_name = self.name_with_espace(table_name)
+        
+        col = self.list_columns(table_name)
+        if (f'{column_name}' in col):
+            return
         col_name = str(column_name)
-        query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} varchar(255);"
+        query = f"ALTER TABLE {table_name} ADD COLUMN {col_name} text;"
         self.cursor.execute(query)
 
 

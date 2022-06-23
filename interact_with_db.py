@@ -8,7 +8,7 @@ class Data_base:
         try:
             print('===================================================================================')
             # Connect to DB and create a cursor
-            self.sqliteConnection = sqlite3.connect(name)
+            self.sqliteConnection = sqlite3.connect(name,check_same_thread=False)
             self.cursor = self.sqliteConnection.cursor()
             print('DB Init')
 
@@ -83,6 +83,7 @@ class Data_base:
             for ele in dict_data.items():
                 list_key.append("[" + ele[0] + "]")
                 list_value.append('"' + ele[1] + '"')
+                # print("ele is ", ele)
             query = query + ",".join(list_key) + ') VALUES (' + ",".join(list_value) + ");"
             print(query)
             self.cursor.execute(query)
@@ -99,9 +100,18 @@ class Data_base:
             list_columns = list(dict_data.keys())
             list_value = list(dict_data.values())
             if type(list_value[0]) != int:
-                for i in range(len(list_value[0])):
-                    for j in range(len(list_columns)):
-                        ele_dict[list_columns[j]] = str(list_value[j][i])
+                # print("list value = ", list_value)
+                # print("list columns = ", list_columns)
+                ele_dict[list_columns[0]] = list_value[0]
+                for i in range(1,len(list_value[1])):
+                    for j in range(1,len(list_columns)):
+                        try:
+                            ele_dict[list_columns[j]] = str(list_value[j][i])
+                        except Exception as e:
+                            print(f" {i}  {j} ")
+                            print(list_value)
+                            print(list_columns)
+                            print(e)
                     self.insert_data_with_columns_names(table_name, ele_dict)
             else:
                 for j in range(len(list_columns)):
@@ -205,9 +215,10 @@ class Data_base:
             f"""SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'; """).fetchall()
         if listOfTable:  # if listOfTable == []:
             print('Table existes')
+            query = f"DROP TABLE {table_name}"
+            self.cursor.execute(query)
             return
-        query = f"DROP TABLE {table_name}"
-        self.cursor.execute(query)
+
 
     # dict_change = {"column":"new_val"}
     # Following is an example, which will update ADDRESS for a customer whose ID is 6.
@@ -226,18 +237,15 @@ class Data_base:
         return lsi_t
 
     # create and add data to a table
-    def read_data_from_a_dict(self, dictionary, name="summonerName", primary_key="ID"):
+    def read_data_from_a_dict(self, dictionary, name="partie", primary_key="timestamp", table_all_name = "all_summoner"):
         list_keys = list(dictionary.keys())
         list_values = list(dictionary.values())
-        try:
-            list_keys.remove(name)
-            list_values.remove(dictionary.get(name))
-        except:
-            pass
-        tab_name = dictionary.get(name)
-        dictionary.pop(name)
-        self.create_table(tab_name, list_keys, primary_key)
-        self.insert_multi_row_with_column_name(tab_name, dictionary)
+        print("list key = ", list_keys)
+        print("lsit values = ", list_values)
+        self.create_table(name, list_keys, primary_key)
+        self.create_table(table_all_name,["summonerName"] ,primary_key = "summonerName")
+        self.insert_data_with_columns_names(table_all_name,{"summonerName":dictionary.get("summonerName")})
+        self.insert_multi_row_with_column_name(name, dictionary)
         # self.insert_data_with_columns_names(dictionary.get(name),dictionary)
         # print(f'{list_keys} \n {list_values}')
 
@@ -329,5 +337,3 @@ def f_string_table(d, ord=None, lim=20):
     for i in range(n):
         s = s + f_string_line(d, i, ord, lim) + "\n"
     return s
-
-

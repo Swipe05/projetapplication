@@ -19,8 +19,7 @@ from datetime import datetime
 from mariaDB import *
 from variable import every
 import time
-import matplotlib.pyplot as plt
-
+import customtkinter as ctkp
 
 
 dict_champions = {'Aatrox':0, 'Ahri':1 ,'Akali':1 , 'Akshan':0,'Alistar':0,'Amumu':0, 'Anivia':1, 'Annie':1, 'Aphelios':0, 'Ashe':1, 'AurelionSol':0, 'Azir':0 ,'Bard':0, 'Belveth':1,'Blitzcrank':0, 'Brand':0,'Braum':0,'Caitlyn':1,'Camille':1 ,'Cassiopeia':1 ,'Chogath':0, 'Corki':0, 'Darius':0,'Diana':1,'DrMundo':0,'Draven':0 ,'Ekko':0,'Elise':1, 'Evelynn':1,'Ezreal':0,'Fiddlesticks':0, 'Fiora':1, 'Fizz':0, 'Galio':0,'Gangplank':0,'Garen':0,'Gnar':0,'Gragas':0,'Graves':0,'Gwen':1,'Hecarim':0,'Heimerdinger':0,'Illaoi':0,'Irelia':1,'Ivern':0,'Janna':1,'JarvanIV':0 ,'Jax':0,'Jayce':0, 'Jhin':0,'Jinx':1,'Kaisa':1,'Kalista':1,'Karma':1,'Karthus':0,'Kassadin':0,'Katarina':1,'Kayle':1,'Kayn':0,'Kennen':0,'Khazix':0,'Kindred':0,'Kled':0,
@@ -106,9 +105,7 @@ class LoLInterface():
     def __init__(self):
         self.database = Data_base()
         # Api key needed to work with Riot Api
-        self.api_key = 'RGAPI-bb4bfc8c-ac49-4834-ab76-45d466523973'
-
-
+        self.api_key = 'RGAPI-af97bdf8-b6d2-4fbf-90f4-80814ff9d76b'
 
         # LolWatcher instance creation
         self.watcher = LolWatcher(self.api_key)
@@ -125,14 +122,14 @@ class LoLInterface():
 
         # Treeview style
         self.style = ttk.Style()
-        self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 14, 'bold'), foreground='blue')
-        self.style.configure("mystyle.Treeview", background="#b5c3f7", font=('Comic Sans MS', 11), rowheight=25,
-                             foreground='black', fieldbackground='#3e61de', highlightthickness=0, bd=0, )
+        self.style.configure("mystyle.Treeview.Heading", font=('Helvetica Neue', 14, 'bold'), foreground='blue')
+        self.style.configure("mystyle.Treeview", background="#b5c3f7", font=('Helvetica Neue', 11), rowheight=25,
+                             foreground='black', fieldbackground='#3e61de', highlightthickness=0, bd=2, )
         self.style.map('Treeview',
                        background=[('selected', 'blue')])
         self.window.title("League of Legends Inspector")
         self.window.resizable(False, False)
-        self.window.config(pady=10, padx=10, background='#05061a')
+        self.window.config(pady=10, padx=10, background='#2F2F2F')
 
         # New window
         self.new_win = Toplevel(self.window)
@@ -169,16 +166,16 @@ class LoLInterface():
         # Listbox creation and configuration
         self.list = Listbox(justify=CENTER)
         self.list.config(borderwidth=2, activestyle=NONE, fg="white",
-                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
-                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
+                         bg="yellow", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
+                         selectbackground="#03052e", selectborderwidth=0, selectmode=SINGLE,
                          highlightbackground='#313cf7', highlightcolor='#2029c7')
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
         # Scrollbar creation for Listbox
         self.list = Listbox(justify=CENTER)
         self.list.config(borderwidth=2, activestyle=NONE, fg="white",
-                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
-                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
+                         bg="#005A34", font=("Arial", 15, "bold"), selectforeground="#2F2F2F",
+                         selectbackground="#54ECC4", selectborderwidth=0, selectmode=SINGLE,
                          highlightbackground='#313cf7', highlightcolor='#2029c7')
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
@@ -189,65 +186,111 @@ class LoLInterface():
         self.scroll.config(command=self.list.yview)
 
         # Labels, Entries and Buttons...
-        self.label = Label(text="Summoner name: ",
-                           font=('Comic Sans MS', 15, 'bold'), background='#05061a', foreground='#0f1adb')
+        self.label = ctkp.CTkLabel(text="Summoner name: ",
+                                   text_font=('Helvetica Neue', 15, 'bold'), background='#05061a', foreground='#0f1adb',
+                                   text_color='white')
         self.label.grid(row=2, column=0)
-        self.text = Entry(justify=CENTER, font=('Comic Sans MS', 13, 'bold'), foreground='black',
-                          background='white', insertbackground='blue')
+        self.text = ctkp.CTkEntry(justify=CENTER, text_font=('Helvetica Neue', 13, 'bold'), foreground='black',
+                                  background='white', insertbackground='blue')
         self.text.grid(row=2, column=1)
-        self.clear_entry = Button(text='Clear', command=self.clear, font=('Comic Sans MS', 10, 'bold'),
-                                  background='#858aed', width=10)
+        self.clear_entry = ctkp.CTkButton(width=50,
+                                          height=10, text_font=('Helvetica Neue', 9, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="Clear", command=self.clear,
+                                          background='#BBF287', text_color='white', border_color='#005A34',
+                                          hover_color='#005A34')
         self.clear_entry.grid(row=3, column=1)
-        self.buscar_btn = Button(text="Show 100 last game", command=self.buscar_Invocador,
-                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.build_truc = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Creation reseau et database", command=self.run_db_scan,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
+        self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
+
+        self.addaperson = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Add one person to database", command=self.add_one_person,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
+        self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
+        self.buscar_btn = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Show Last 100 Games", command=self.buscar_Invocador,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
         self.buscar_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
-        self.buscar_btn_list = Button(text="Show stat for summoners in list", command=self.buscar_Invocador_list,
-                                      font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.buscar_btn_list = ctkp.CTkButton(width=150,
+                                              height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                              border_width=3,
+                                              corner_radius=8,
+                                              text="Show stat for summoners in list",
+                                              command=self.buscar_Invocador_list,
+                                              background='#BBF287', text_color='white', border_color='#005A34',
+                                              hover_color='#005A34')
         self.buscar_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
-        self.view_ranked = Button(text="View ranked info", command=self.view_ranked_info,
-                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.view_ranked = ctkp.CTkButton(width=185,
+                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="View ranked info", command=self.view_ranked_info, background='#858aed',
+                                          text_color='white', border_color='#005A34', hover_color='#005A34')
         self.view_ranked.grid(row=8, column=0, sticky=W, columnspan=3)
-        self.region_label = Label(text="Player region: ", font=('Comic Sans MS', 15, 'bold'),
-                                  background='#05061a', foreground='#0f1adb')
-        self.player_list_label = Label(text="Player list: ", font=('Comic Sans MS', 15, 'bold'),
-                                       background='#05061a', foreground='#0f1adb')
+        self.region_label = ctkp.CTkLabel(text="Player region: ", text_font=('Helvetica Neue', 15, 'bold'),
+                                          background='#05061a', foreground='#0f1adb', text_color='white')
+        self.player_list_label = ctkp.CTkLabel(text="Player list: ", text_font=('Helvetica Neue', 15, 'bold'),
+                                               background='#05061a', foreground='#0f1adb', text_color='white')
         self.region_label.grid(row=4, column=0, sticky=E)
         self.player_list_label.grid(row=5, column=0, sticky=E)
 
         # Combobox to select the Summoner region
         self.combo = ttk.Combobox(self.window, state="readonly",
                                   values=['EUW1', 'BR1', 'EUN1', 'JP1', 'KR', 'LA1', 'LA2', 'NA1',
-                                          'OC1', 'TR1', 'RU'], font=('Comic Sans MS', 10, 'bold'),
+                                          'OC1', 'TR1', 'RU'], font=('Helvetica Neue', 10, 'bold'),
                                   justify=CENTER)
         with open('players_list.txt') as inFile:
             players = [line for line in inFile]
         self.combo_player = ttk.Combobox(self.window, state="readonly",
-                                         values=tuple(players), font=('Comic Sans MS', 10, 'bold'),
+                                         values=tuple(players), font=('Helvetica Neue', 10, 'bold'),
                                          justify=CENTER, postcommand=self.updatecblist)
 
         self.combo_player.grid(row=5, column=1, pady=10, sticky=W)
         self.combo.grid(row=4, column=1, pady=10, sticky=W)
 
-        self.last_20 = Label(text="Last 20 games of", font=('Comic Sans MS', 14, 'bold'), background='#05061a',
-                             foreground='#0f1adb')
+        self.last_20 = ctkp.CTkLabel(text="Last 20 games of", text_font=('Helvetica Neue', 14, 'bold'),
+                                     background='#05061a',
+                                     foreground='#0f1adb', text_color='white')
         self.last_20.grid(row=0, column=0, columnspan=2)
-        self.view_active = Button(text="View active game", command=self.thread,
-                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.view_active = ctkp.CTkButton(width=150,
+                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="View active game", command=self.thread,
+                                          background='#BBF287', text_color='white', border_color='#005A34',
+                                          hover_color='#005A34')
         # self.view_active.grid(row=7, column=0, sticky=EW, pady=10, columnspan=3)
-        self.top_p = Button(text="Delete Database", command=self.delete_alltables,
-                            font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
-        self.build_truc = Button(text="Creation reseau et database", command=self.run_db_scan,
-                            font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
-
-        self.addaperson = Button(text="Add one person to database", command=self.run_db_scan2,
-                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
-
-        self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
-                              font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
+        self.top_p = ctkp.CTkButton(width=150,
+                                    height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                    border_width=3,
+                                    corner_radius=8,
+                                    text="Top Challenger Players", command=self.top_Players,
+                                    background='#BBF287', text_color='white', border_color='#005A34',
+                                    hover_color='#005A34')
+        #self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
+        self.loadbtn = ctkp.CTkButton(width=185,
+                                      height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                      border_width=3,
+                                      corner_radius=8,
+                                      text="Show Calendar", command=self.make_calendar,
+                                      background='#BBF287', text_color='white', border_color='#005A34',
+                                      hover_color='#005A34')
+        self.loadbtn.grid(row=8, column=1, sticky=E, columnspan=3, pady=10)
         self.listbox = Listbox(self.new_win4, justify=CENTER)
 
         self.selection = 0
@@ -280,32 +323,19 @@ class LoLInterface():
 
                 init_calendar(nameF)
 
-    def delete_alltables(self):
-        try:
-            self.database.drop_table("Partie")
-            self.database.drop_table("all_summoner")
-        except:
-            print("No such tables")
-    def determine_role_by_puid(self):  # coute beaucoup de requêtes
+
+    def determine_role_by_puid(self, puid, games):  # coute beaucoup de requêtes
         roles = []
-        main_role = ''
+        main_role = None
 
-        # matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count = 100)
-        # list_containing_all_roles = []
-        # for a in range(games):
-        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     role = temp_match_detail['info']['participants'][
-        #         self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])][
-        #         'individualPosition']
-        #     list_containing_all_roles.append(role)
-
-        name = self.combo_player.get()[:-1]
+        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count = 100)
         list_containing_all_roles = []
-        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["individualPosition"])
-        for a in query:
-            list_containing_all_roles.append(a[0])
-
-
+        for a in range(games):
+            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+            role = temp_match_detail['info']['participants'][
+                self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])][
+                'individualPosition']
+            list_containing_all_roles.append(role)
         frequency = {'MIDDLE': 0, 'TOP': 0, 'JUNGLE': 0, 'SUPPORT': 0, 'BOTTOM': 0}
         for elem in list_containing_all_roles:
             if elem in frequency:
@@ -314,76 +344,44 @@ class LoLInterface():
                 frequency[elem] = 1
 
         for keys, values in frequency.items():
-            if values / len(query) > 0.3:
-                main_role += keys + ' '
-
+            if values / games > 0.7:
+                main_role = keys
 
         return main_role
 
-    def percentage_of_female_caracters_played(self):
-        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
+    def percentage_of_female_caracters_played(self, puid, games):
+        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
         list_containing_all_champs = []
         percentage = 0
-        # for a in range(games):
-        #     print(a)
-        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #
-        #     champ = temp_match_detail['info']['participants'][
-        #         self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['championName']
-        #     print(champ)
-        #     print(self.watcher.summoner.by_puuid(self.my_region, puid)['name'])
+        for a in range(games):
+            print(a)
+            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
 
-        #     time.sleep(2)
-        name = self.combo_player.get()[:-1]
-        champ = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"',["championName"])
-        print(self.combo_player.get(),"owo")
-        print(champ)
-        # for a in
-        #     if self.champ_dict[champ] == 1:
-        #         percentage += 1
-        #     list_containing_all_champs.append(champ)
-        champion_list = []
-        for a in champ:
-            champion_list.append(a[0])
-
-        for a in champion_list:
-            if self.champ_dict[a] == 1:
-                percentage +=1
-        print(champion_list)
-        percentage = percentage/len(champion_list)
+            champ = temp_match_detail['info']['participants'][
+                self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['championName']
+            print(champ)
+            print(self.watcher.summoner.by_puuid(self.my_region, puid)['name'])
+            time.sleep(2)
+            if self.champ_dict[champ] == 1:
+                percentage += 1
+            list_containing_all_champs.append(champ)
+        percentage = percentage / games
+        print(percentage)
+        print(list_containing_all_champs)
         return percentage
 
-
-
-
-        # percentage = percentage / games
-        # print(percentage)
-        # print(list_containing_all_champs)
-        # return percentage
-
-    def percentage_of_role_played(self,role):
-        name = self.combo_player.get()[:-1]
-        role_query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["individualPosition"])
-        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
+    def percentage_of_role_played(self, puid, role, games):
+        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid, count=100)
         percentage = 0
-        # for a in range(games):
-        #     temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     match_role = temp_match_detail['info']['participants'][self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['individualPosition']
-        #     time.sleep(1)
-        #     if match_role == role:
-        #         percentage += 1
-        #
-        # percentage = percentage / games
-        # print(percentage)
-        role_list = []
-        for a in role_query:
-            role_list.append(a[0])
-
-        for match_role in role_list:
+        for a in range(games):
+            temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
+            match_role = temp_match_detail['info']['participants'][self.find_position_of_a_player(puid, temp_match_detail['metadata']['participants'])]['individualPosition']
+            time.sleep(1)
             if match_role == role:
                 percentage += 1
 
-        percentage = percentage/len(role_query)
+        percentage = percentage / games
+        print(percentage)
         return percentage
 
 
@@ -432,9 +430,7 @@ class LoLInterface():
 
                 # Get the summoner ranked info
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
-                gender_info=self.percentage_of_female_caracters_played()
-                main_role=self.determine_role_by_puid()
-
+                gender_info=self.determine_if_female(self.puuid,10)
             except HTTPError:
                 messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
                                                              " api key"
@@ -461,7 +457,6 @@ Games: {my_ranked_stats[0]['wins'] + my_ranked_stats[0]['losses']}\n
 Winrate: {round(winrate)}%\n
 HotSreak: {my_ranked_stats[0]['hotStreak']}\n
 Gender Info: {gender_info}\n
-Most Played Role: {main_role}\n
 """)
                 except IndexError:
                     messagebox.showwarning(title="Atención!", message="The player has not completed the placement"
@@ -540,203 +535,6 @@ Most Played Role: {main_role}\n
 
 
 
-    def when_player_plays(self):# return dict {lundi:num_of_games,mardi:'78    etc..}
-        #matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
-        name = self.text.get()[:-1]
-
-        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["timestamp"])
-        list_containing_all_timestamps_from_last_games = []
-        for a in query:
-            list_containing_all_timestamps_from_last_games.append(a[0])
-
-        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-        dict_to_return = {}
-        # for a in range(games):
-        #     try:
-        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     except:
-        #         time.sleep(4)
-        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     timestamp = temp_match_detail['info']['gameStartTimestamp']
-        #     list_containing_all_timestamps_from_last_games.append(timestamp)
-        for timestamp in list_containing_all_timestamps_from_last_games:
-            dt_object = datetime.fromtimestamp(timestamp)
-
-            print(dt_object.weekday())
-            day_occ = dt_object.weekday()
-            if dico_jours[day_occ] in dict_to_return:
-                dict_to_return[dico_jours[day_occ]].append(timestamp)
-            else:
-                dict_to_return[dico_jours[day_occ]] = []
-            print(dt_object.weekday())
-            time.sleep(3)
-        print(list_containing_all_timestamps_from_last_games)
-        print(dict_to_return)
-        return dict_to_return
-
-    def when_player_plays_hour(self):# return dict {lundi:num_of_games,mardi:'78    etc..}
-        name = self.text.get()
-        print("test",name)
-        query = self.database.select_data_with_condition("Partie", f' summonerName = "{name}"', ["timestamp"])
-        print('-------------------------------query-----------------------------------',query)
-        list_containing_all_timestamps_from_last_games = []
-        for timestamp in query:
-            list_containing_all_timestamps_from_last_games.append(timestamp[0])
-        print('uuuuuuuuuu',list_containing_all_timestamps_from_last_games)
-
-
-        # matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
-        # list_containing_all_timestamps_from_last_games = []
-        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-        dict_to_return = {}
-
-        for timestamp in list_containing_all_timestamps_from_last_games:
-            dt_object = datetime.fromtimestamp(float(timestamp))
-            print(dt_object.day)
-            day_occ = dt_object.weekday()
-            print('owo')
-            if dico_jours[day_occ] in dict_to_return:
-                dict_to_return[dico_jours[day_occ]].append(datetime.utcfromtimestamp(float(timestamp)).strftime('%H'))
-            else:
-                dict_to_return[dico_jours[day_occ]] = []
-
-        # for a in range(games):
-        #     try:
-        #         print(games)
-        #         print(a)
-        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     except:
-        #         time.sleep(4)
-        #         temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-        #     timestamp = temp_match_detail['info']['gameStartTimestamp']
-        #     list_containing_all_timestamps_from_last_games.append(timestamp)
-        #     dt_object = datetime.fromtimestamp(timestamp/1000)
-        #     day_occ = dt_object.weekday()
-        #
-        #     if dico_jours[day_occ] in dict_to_return:
-        #         dict_to_return[dico_jours[day_occ]].append(datetime.utcfromtimestamp(timestamp/1000).strftime('%H'))
-        #     else:
-        #         dict_to_return[dico_jours[day_occ]] = []
-        #     print(dt_object.weekday())
-        #     time.sleep(4)
-        print(list_containing_all_timestamps_from_last_games)
-        print(dict_to_return)
-        return dict_to_return
-
-    def graph_by_hour(self,day):#day is a string 'Lundi' for example
-        #the goal of this function is to display a graph of the frequency of game played for the period of times of 2 hours
-        timeperiods = [[x,x+2] for x in range(23) if x%2==0]#[[0, 2], [2, 4], [4, 6], [6, 8], [8, 10], [10, 12]..]
-        left = [range(1,12)]
-
-
-        dict_hours = self.when_player_plays_hour()
-        print(dict_hours)
-        list_hours = dict_hours[day]
-        print(list_hours)
-
-        # x-coordinates of left sides of bars
-        left = [x for x in range(24)]
-
-        # heights of bars
-        tick_label = [x for x in range(24)]  # nb de games par lapse de temps
-
-        # labels for bars
-        height = []  # laspe de temps
-        for x in range(24):
-            height.append(0)
-
-        for x in list_hours:
-            height[int(x)] +=1
-
-
-
-        # plotting a bar chart
-        plt.bar(left, height, tick_label=tick_label,
-                width=0.8, color=['blue', 'green'])
-
-        # naming the x-axis
-        plt.xlabel('heure de la journée')
-        # naming the y-axis
-        plt.ylabel('nombre de partie jouées')
-        # plot title
-        plt.title(day.upper())
-
-        # function to show the plot
-        plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def when_player_plays_freq(self,puid,games):# return dict {lundi:num_of_games,mardi:'78    etc..}
-        matches = self.watcher.match.matchlist_by_puuid(self.my_region, puid,count=100)
-        list_containing_all_timestamps_from_last_games = []
-        dico_jours = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-        dict_to_return = {}
-        for a in range(games):
-            try:
-                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            except:
-                time.sleep(2)
-                temp_match_detail = self.watcher.match.by_id(self.my_region, matches[a])
-            timestamp = temp_match_detail['info']['gameStartTimestamp']
-            list_containing_all_timestamps_from_last_games.append(timestamp)
-            dt_object = datetime.fromtimestamp(timestamp/1000)
-            day_occ = dt_object.weekday()
-            if dico_jours[day_occ] in dict_to_return:
-                dict_to_return[dico_jours[day_occ]] +=1
-            else:
-                dict_to_return[dico_jours[day_occ]] = 1
-            print(dt_object.weekday())
-            time.sleep(4)
-        print(list_containing_all_timestamps_from_last_games)
-        print(dict_to_return)
-        return dict_to_return
-
-    def graph_games_by_freq(self,puid,games):
-        # x-coordinates of left sides of bars
-        dict_we_gonna_use = {}
-        left = [1, 2, 3, 4, 5, 6, 7]
-
-        # heights of bars
-        height = [10, 24, 36, 40, 89, 12, 50]  # nb de games par lapse de temps
-        height = []
-        dict_of_days = self.when_player_plays_freq(puid,games)
-
-        for key,value in dict_of_days.items():
-            height.append(value)
-        left = list(range(1,len(dict_of_days)+1))
-
-        # labels for bars
-        tick_label = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']  # laspe de temps
-        #tick_label = list(set(dict_of_days) & set(tick_label))
-        tick_label = [x for x in tick_label if x in list(dict_of_days)]
-        print(tick_label)
-        height=[]
-        for a in tick_label:#remettre dans l'ordre
-            height.append(dict_of_days[a])
-
-        # plotting a bar chart
-        plt.bar(left, height, tick_label=tick_label,
-                width=0.8, color=['red', 'green'])
-
-        # naming the x-axis
-        plt.xlabel('x - axis')
-        # naming the y-axis
-        plt.ylabel('y - axis')
-        # plot title
-        plt.title('My bar chart!')
-
-        # function to show the plot
-        plt.show()
 
     def ajoutbase_reseau(self,reseau_liste,nbgame):
         for b in range(len(reseau_liste)):
@@ -802,10 +600,10 @@ Most Played Role: {main_role}\n
                                 self.database.add_column("Partie", ele)
 
                         # print(last_dict)
-                    self.database.read_data_from_a_dict(last_dict, "Partie", ["summonerName","timestamp"])
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
                     init = True
                 except Exception as error:
-                    self.database.read_data_from_a_dict(last_dict, "Partie", ["summonerName","timestamp"])
+                    self.database.read_data_from_a_dict(last_dict, "Partie", ["SummonerName","timestamp"])
                     init = True
         print("FIN")
 
@@ -844,11 +642,11 @@ Most Played Role: {main_role}\n
                 print(self.puuid)
                 puuid_liste=[self.puuid]
                 self.ajoutbase_reseau(puuid_liste,50)
-                time.sleep(60 * 60)
 
 
     def create_dataset_and_add(self):
         while True:
+            init = False
             self.my_region = self.combo.get()
             # self.text.get() = summonername
             if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
@@ -878,17 +676,12 @@ Most Played Role: {main_role}\n
                     # a.run_forever()
 
 
-                    self.ajoutbase_reseau(self.all_players2,10)
-                    time.sleep(60*60)
+                    self.ajoutbase_reseau(self.all_players2,5)
+                    time.sleep(60*3)
 
 
     def run_db_scan(self):
         s = Thread(target=self.create_dataset_and_add)
-
-        s.start()
-
-    def run_db_scan2(self):
-        s = Thread(target=self.add_one_person)
 
         s.start()
 
@@ -943,8 +736,6 @@ Most Played Role: {main_role}\n
                 self.list.bind("<Double-1>", self.OnDoubleClick)
                 self.list.bind("<Return>", self.OnDoubleClick)
                 self.last_20.config(text=f"Last 20 games of {me['name']}")
-
-
 
 
                 #self.reseau2(self.puuid)
@@ -1088,14 +879,12 @@ Most Played Role: {main_role}\n
                 self.last_20.config(text=f"Last 20 games of {me['name']}")
 
 
-
     def OnDoubleClick(self, event):
         """
         Function that allows user to interact with Listbox items by double clicking them and
             shows a pop up window with a Treeview with all game selected info
         """
-        self.graph_by_hour('Samedi')
-        print('owo')
+
         self.new_win.config(cursor='top_left_arrow')
         item = self.list.curselection()
         item2 = ''.join(map(str, item))
@@ -1539,33 +1328,28 @@ Win Rate: {winrate}%
             f.close()
 
     def save_list_Players(self,name):
+        exist = False
 
-
-
-
+        self.listesansdoublon.append(name)
         l = list(set(self.listesansdoublon))
         try:
-
-            with open('players_list.txt', mode='a+') as f:
-
-                f.writelines(f"{name}\n")
-                # lines = f.readlines()
-                # line_set= set(lines)
-                # for line in line_set:
-                #     f.write(line)
+            with open('players_list.txt') as fi:
+                re = fi.read()
+                if f'{name}' in fi:
+                    exist = True
+            with open('players_list.txt', mode='a') as f:
+                if not exist:
+                    f.writelines(f"{l[0]}\n")
             f.close()
         except UnicodeEncodeError:
-
-            with open('players_list.txt', mode='a+', encoding='utf-8') as f:
-
-                f.writelines(f"{name}\n")
-                # lines = f.readlines()
-                # line_set= set(lines)
-                # for line in line_set:
-                #     f.write(line)
+            with open('players_list.txt', encoding='utf-8') as fi:
+                re = fi.read()
+                if f'{name}' in fi:
+                    exist = True
+            with open('players_list.txt', mode='a', encoding='utf-8') as f:
+                if not exist:
+                    f.writelines(f"{name}\n")
             f.close()
-
-
 
     def loadPlayers(self):
         self.listbox.delete(0, END)
@@ -1623,7 +1407,6 @@ Win Rate: {winrate}%
         self.window.clipboard_append(content[0])
         self.text.insert(0, content[0])
         self.combo.set(content[1])
-        self.graph_by_hour('Samedi')
 
     def double_click3(self, event):
         """Called when user double clicks element from ListBox"""
