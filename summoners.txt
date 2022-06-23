@@ -124,6 +124,7 @@ Swipe04 | EUW1
  | EUW1
 Swipe04 | EUW1
 Swipe04 | EUW1
+<<<<<<< HEAD
  | EUW1
  | EUW1
  | EUW1
@@ -156,3 +157,6 @@ Swipe04 | EUW1
 Swipe04 | EUW1
 Swipe04 | EUW1
 Swipe04 | EUW1
+=======
+Evangelinebe | EUW1
+>>>>>>> 1bdcf15a360f11bf44c176857cf53557c4b60e1c
