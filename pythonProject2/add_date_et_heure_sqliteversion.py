@@ -21,10 +21,10 @@ class HeureEtDate:
     # select match_start_time, match_end_time, number_of_match_in_a_day, timestamp
     # datemonthyear format is %d/%m/%y
     def get_data_of_a_day(self, monthdayyear, table ="Partie"):
-        return self.database.select_data_with_condition(table,f" date LIKE   '{monthdayyear}%' AND summonerName = '{self.pseudo}'",('timestamp','date'))
+        return self.database.select_data_with_condition(table,f" col_date LIKE   '{monthdayyear}%' AND col_summonerName = '{self.pseudo}'",('col_timestamp','col_date'))
 
     def get_all_data_a_month(self, month, year,table="Partie"):
-        return self.database.select_data_with_condition(table,f" date LIKE   '%{month}%{year}%' AND summonerName = '{self.pseudo}' ",('timestamp','date'))
+        return self.database.select_data_with_condition(table,f" col_date LIKE   '%{month}%{year}%' AND col_summonerName = '{self.pseudo}' ",('col_timestamp','col_date'))
 
     def get_number_of_match_a_month(self, month, year):
         return  len(self.get_all_data_a_month(month,year))
@@ -49,7 +49,7 @@ class HeureEtDate:
         return [ (x[1].split(" - "))[1] for x in data]
 
     def get_list_num_heure(self, monthdayyear, tb_name="Partie"):
-        data = self.database.select_data_with_condition( tb_name,f" date LIKE   '{monthdayyear}%' AND summonerName='{self.pseudo}'",('timestamp', 'date'))
+        data = self.database.select_data_with_condition( tb_name,f" col_date LIKE   '{monthdayyear}%' AND col_summonerName='{self.pseudo}'",('col_timestamp', 'col_date'))
         li = []
         for i in data:
             li.append(i[1])

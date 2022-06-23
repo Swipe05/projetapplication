@@ -1,4 +1,4 @@
-import mariadb
+import mysql.connector
 import sys
 
 from requests import ReadTimeout
@@ -7,33 +7,33 @@ from requests import ReadTimeout
 class Data_base:
     def __init__(self) -> None:
 
-        print('===================================================================================')
+        print('\033[0;32m===================================================================================\033[0m')
         # Connect to MariaDB Platform
         try:
-            conn = mariadb.connect(
+            self.conn = mysql.connector.connect(
                 user="root",
-                password="123",
+                password="1234",
                 host="localhost"
             )
-        except mariadb.Error as e:
+        except mysql.connector.Error as e:
             print(f"Error connecting to MariaDB Platform: {e}")
             sys.exit(1)
 
         # Get Cursor
-        self.cursor = conn.cursor()
+        self.cursor = self.conn.cursor(buffered=True)
 
         # creating database
-        self.cursor.execute("CREATE DATABASE IF NOT EXISTS LienMinh;")
+        self.cursor.execute("CREATE DATABASE IF NOT EXISTS test1;")
 
         self.cursor.execute("SHOW DATABASES")
         databaseList = self.cursor.fetchall()
 
-        self.cursor.execute("use LienMinh")
+        self.cursor.execute("use test1")
         for database in databaseList:
             print(database)
         self.cursor.execute("SET GLOBAL innodb_strict_mode = 0;")
 
-        print('===================================================================================')
+        print('\033[0;32m===================================================================================\033[0m')
 
     # create table
     # if data type is text ===> "VARCHAR(255)"
@@ -85,9 +85,15 @@ class Data_base:
     # ex: insert_data_with_columns_names("TEST_TABLE", {'name':'Maxime', 'age':'10', 'score':'18.5'})
     def insert_data_with_columns_names(self, table_name, dict_data):
         table_name = self.name_with_espace(table_name)
-        for ele in dict_data.keys():
-            if (ele not in self.list_columns(table_name)):
-                self.add_column(table_name, f'col_{ele}')
+        try:
+            for ele in dict_data.keys():
+                if (f'col_{ele}' not in self.list_columns(table_name)):
+                    self.add_column(table_name, f'col_{ele}')
+                    print(
+                        "\n\n\n \033[0;31mele = col_{}\033[0m \n \033[0;35mlist_column = {}\033[0m\n\n\n  \n\n\n".format(
+                            ele, self.list_columns(table_name)))
+        except Exception as e:
+            print("add insert:  ", e)
         try:
             query = f'''INSERT INTO {table_name} ('''
             list_key = []
@@ -345,3 +351,5 @@ def f_string_table(d, ord=None, lim=20):
     for i in range(n):
         s = s + f_string_line(d, i, ord, lim) + "\n"
     return s
+
+
