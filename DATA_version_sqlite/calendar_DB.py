@@ -8,11 +8,12 @@ import datetime
 import add_date_et_heure_sqliteversion
 def init_calendar(name):
 
-            root = Tk()
+             root = Tk()
 
-            root.geometry("400x400")
+            root.geometry("400x500")
             style = ttk.Style(root)
             style.theme_use('clam')
+            root.config(pady=10, padx=10, background='#2F2F2F')
             cal = Calendar(root, background="black", disabledbackground="black", bordercolor="black",
                            headersbackground="black", normalbackground="black", foreground='white',
                            normalforeground='white', headersforeground='white')
@@ -73,8 +74,13 @@ def init_calendar(name):
             '''day = datetime.date(2022, 7, 20)
             cal.calevent_create(day, "", tags="hi")
             cal.tag_config("hi", background="red")'''
-            Button(root, text="Show Time",
-                   command=lambda:grad_date(db)).pack(pady=20),
+            ctkp.CTkButton(root,text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="Show Time",
+                   command=lambda:grad_date(db),background='#858aed',
+                                          text_color='white', border_color='#005A34',
+                    hover_color='#005A34').pack(pady=20)
 
-            date = Label(root, text="")
+            date = Label(root, text="",background='#2F2F2F',fg='white')
             date.pack(pady=20)
