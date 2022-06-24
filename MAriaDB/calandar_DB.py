@@ -1,20 +1,17 @@
-<<<<<<< HEAD
 from tkinter import *
 from tkinter import ttk
 from tkcalendar import Calendar
 from main import  LoLInterface
-import customtkinter as ctkp
+
 import datetime
-#import get_date_et_heure
 import get_date_et_heure
 def init_calendar(name):
 
             root = Tk()
 
-            root.geometry("400x500")
+            root.geometry("400x400")
             style = ttk.Style(root)
             style.theme_use('clam')
-            root.config(pady=10, padx=10, background='#2F2F2F')
             cal = Calendar(root, background="black", disabledbackground="black", bordercolor="black",
                            headersbackground="black", normalbackground="black", foreground='white',
                            normalforeground='white', headersforeground='white')
@@ -75,66 +72,8 @@ def init_calendar(name):
             '''day = datetime.date(2022, 7, 20)
             cal.calevent_create(day, "", tags="hi")
             cal.tag_config("hi", background="red")'''
-            ctkp.CTkButton(root,text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
-                                          border_width=3,
-                                          corner_radius=8,
-                                          text="Show Time",
-                   command=lambda:grad_date(db),background='#858aed',
-                                          text_color='white', border_color='#005A34',
-                    hover_color='#005A34').pack(pady=20)
+            Button(root, text="Show Time",
+                   command=lambda:grad_date(db)).pack(pady=20)
 
-            date = Label(root, text="",background='#2F2F2F',fg='white')
+            date = Label(root, text="")
             date.pack(pady=20)
-=======
-from tkinter import *
-from tkcalendar import Calendar
-import AMERGEKAI
-import datetime
-import get_date_etHeure
-
-
-def init_calendar(name):
-
-       root = Tk()
-
-       root.geometry("400x400")
-
-       cal = Calendar(root, selectmode='day',
-                     year=2022, month=6,
-                     day=22)
-
-       db = get_date_etHeure.HeureEtDate(name)
-       dict_an = {}
-       for i in range(1,13):
-              mois = f"{i:02d}"
-              dict_match = db.get_dict_num(mois,"2022")
-              # print(dict_match)
-              if dict_match:
-                     dict_an[f"{i}"] = dict_match
-       print(dict_an)
-       print(list(dict_an.keys()))
-       print(list(dict_an.values()))
-       for it in dict_an.items():
-              print(f"Le {it[0]} est {it[1]}")
-              for i in it[1].items():
-                     print(f"le {i[0]} il a jouer {i[1]} matches")
-                     list_date = i[0].split("/")
-                     print(list_date)
-       db.database.select_all_data("Swipe04")
-
-       cal.pack(pady=20)
-       # day = datetime.date(2022, 6, 20)
-       # cal.calevent_create(day, "", tags="hi")
-       # cal.tag_config("hi", background="red")
-       Button(root, text="View Graph",
-              command=grad_date).pack(pady=20)
-
-       date = Label(root, text="")
-       date.pack(pady=20)
-
-
-def grad_date():
-       datetime.date.config(text="Selected Date is: " )
-
-
->>>>>>> 37324fa28e68d1de60c5393154f0ecf34a98c278

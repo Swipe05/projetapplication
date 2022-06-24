@@ -5,6 +5,7 @@ Swipe04 | EUW1
 Swipe04 | EUW1
 Swipe04 | EUW1
 Evangelinebe | EUW1
+<<<<<<< HEAD
 Evangelinebe | EUW1
 Swipe04 | EUW1
 Swipe04 | EUW1
@@ -171,3 +172,25 @@ Swipe04 | EUW1
 BadyJoke | EUW1
 BadyJoke | EUW1
 Swipe04 | EUW1
+=======
+swipe04 | EUW1
+TTSiHades | EUW1
+EasyPotatoEU | EUW1
+EasyPotatoEU | EUW1
+EasyPotatoEU | EUW1
+Swipe04 | EUW1
+TTSiHades | EUW1
+TTSiHades | EUW1
+Swipe04 | EUW1
+EasyPotatoEU | EUW1
+HentEye | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+A New Moon | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+Swipe04 | EUW1
+>>>>>>> 37324fa28e68d1de60c5393154f0ecf34a98c278
