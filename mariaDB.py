@@ -12,7 +12,7 @@ class Data_base:
         try:
             self.conn = mysql.connector.connect(
                 user="root",
-                password="root",
+                password="1234",
                 host="localhost"
             )
         except mysql.connector.Error as e:

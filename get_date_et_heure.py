@@ -55,19 +55,13 @@ class HeureEtDate:
 
         all_hours = []
         for a in data:
-            all_hours.append(datetime.utcfromtimestamp(float(a[0])).strftime('%H'))
+            all_hours.append(datetime.fromtimestamp(float(a[0])).strftime('%H'))
 
             dt_object = datetime.fromtimestamp(float(a[0]))
-
+        print('suuuuuu',all_hours)
         self.graph_by_hours(all_hours)
 
-        all_hours = []
-        for a in data:
-            all_hours.append(datetime.utcfromtimestamp(float(a[0])).strftime('%H'))
 
-            dt_object = datetime.fromtimestamp(float(a[0]))
-
-        self.graph_by_hours(all_hours)
 
         li = []
         for i in data:

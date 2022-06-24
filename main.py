@@ -41,7 +41,7 @@ class LoLInterface():
     def __init__(self):
         self.database = Data_base()
         # Api key needed to work with Riot Api
-        self.api_key = 'RGAPI-560395a2-5b60-4958-be9d-27d69ec680bb'
+        self.api_key = 'RGAPI-08ee4765-7528-436c-946e-a7b7ba099a83'
 
 
 
@@ -103,7 +103,7 @@ class LoLInterface():
 
         # Listbox creation and configuration
         self.list = Listbox(justify=CENTER)
-        self.list.config(borderwidth=2, activestyle=NONE, fg="white",
+        self.list.config(width=10,height=4,borderwidth=2, activestyle=NONE, fg="white",
                          bg="#2F2F2F", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
                          selectbackground="#03052e", selectborderwidth=0, selectmode=SINGLE,
                          highlightbackground='#313cf7', highlightcolor='#2029c7')
@@ -111,7 +111,7 @@ class LoLInterface():
 
         # Scrollbar creation for Listbox
         self.list = Listbox(justify=CENTER)
-        self.list.config(borderwidth=2, activestyle=NONE, fg="white",
+        self.list.config(width=10,height=4,borderwidth=2, activestyle=NONE, fg="white",
                          bg="#464453", font=("Arial", 15, "bold"), selectforeground="#007956",
                          selectbackground="#2F2F2F", selectborderwidth=0, selectmode=SINGLE,
                          highlightbackground='#2F2F2F', highlightcolor='#005242')
@@ -143,7 +143,7 @@ class LoLInterface():
                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                          border_width=3,
                                          corner_radius=8,
-                                         text="Creation reseau et database", command=self.run_db_scan,
+                                         text="Creation network and data", command=self.run_db_scan,
                                          background='#BBF287', text_color='white', border_color='#005A34',
                                          hover_color='#005A34')
         self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
@@ -151,7 +151,7 @@ class LoLInterface():
                                           height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                           border_width=3,
                                           corner_radius=8,
-                                          text="Stats", command=self.graph_games_by_freq,
+                                          text="delete Database", command=self.delete_alltables,
                                           background='#BBF287', text_color='white', border_color='#005A34',
                                           hover_color='#005A34')
         self.build_truc2.grid(row=13, column=0, sticky=EW, columnspan=3)
@@ -164,23 +164,23 @@ class LoLInterface():
                                          background='#BBF287', text_color='white', border_color='#005A34',
                                          hover_color='#005A34')
         self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3, pady=10)
-        self.buscar_btn = ctkp.CTkButton(width=150,
+        self.search_btn = ctkp.CTkButton(width=150,
                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                          border_width=3,
                                          corner_radius=8,
-                                         text="Show Last 100 Games", command=self.buscar_Invocador,
+                                         text="Show Last 100 Games", command=self.search_summoner,
                                          background='#BBF287', text_color='white', border_color='#005A34',
                                          hover_color='#005A34')
-        self.buscar_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
-        self.buscar_btn_list = ctkp.CTkButton(width=150,
-                                              height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
-                                              border_width=3,
-                                              corner_radius=8,
-                                              text="Show stat for summoners in list",
-                                              command=self.buscar_Invocador_list,
-                                              background='#BBF287', text_color='white', border_color='#005A34',
-                                              hover_color='#005A34')
-        self.buscar_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
+        self.search_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
+        # self.search_btn_list = ctkp.CTkButton(width=150,
+        #                                       height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+        #                                       border_width=3,
+        #                                       corner_radius=8,
+        #                                       text="Show stat for summoners in list",
+        #                                       command=self.search_summoner_list,
+        #                                       background='#BBF287', text_color='white', border_color='#005A34',
+        #                                       hover_color='#005A34')
+        # self.search_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
         self.view_ranked = ctkp.CTkButton(width=185,
                                           height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
                                           border_width=3,
@@ -269,14 +269,51 @@ class LoLInterface():
 
                 init_calendar(nameF)
 
-
-
     def delete_alltables(self):
         try:
             self.database.drop_table("Partie")
             self.database.drop_table("all_summoner")
+            os.remove("players_list.txt")
+            print("TZESJDDDZJDZJDJZJJJJJJJJJJJJJJJJJJJJJJJJJ")
+            with open('players_list.txt', 'w') as f:
+                f.write('')
+                f.close()
         except:
             print("No such tables")
+
+    # def by_duration(self):
+    #     name = self.combo_player.get()[:-1]
+    #     query_end = self.database.select_data_with_condition("Partie", f' col_summonerName = "{name}"',["col_timestamp"])#end
+    #     query_start = self.database.select_data_with_condition("Partie", f' col_summonerName = "{name}"', ["col_matchstart"])
+    #     query_gamedurations = self.database.select_data_with_condition("Partie", f' col_summonerName = "{name}"', ["col_gameduration"])
+    #     print(query_end)
+    #     print(query_start)
+    #     start_timestamp =[]
+    #     end_timestamp = []
+    #     game_durations = []
+    #     for a in query_end:
+    #         end_timestamp.append(datetime.utcfromtimestamp(float(a[0])).strftime('%H'))
+    #
+    #     for b in query_end:
+    #         start_timestamp.append(b[0])
+    #
+    #     for a in query_gamedurations:
+    #         game_durations.append(datetime.utcfromtimestamp(float(a[0])).strftime('%H'))
+    #
+    #     print(end_timestamp)
+    #     print(game_durations)
+
+
+
+
+
+
+
+
+
+        query_starting_timestamp = 0
+
+
     def determine_role_by_puid(self):  # coute beaucoup de requêtes
         roles = []
         main_role = ''
@@ -307,6 +344,9 @@ class LoLInterface():
         for keys, values in frequency.items():
             if values / len(query) > 0.3:
                 main_role += keys + ' '
+        print(main_role)
+        if ("Invalid" in main_role):
+            main_role ="No Main role"
 
 
         return main_role
@@ -425,6 +465,7 @@ class LoLInterface():
                 my_ranked_stats = self.watcher.league.by_summoner(self.my_region, me['id'])
                 gender_info=self.percentage_of_female_caracters_played()
                 main_role=self.determine_role_by_puid()
+
 
             except HTTPError:
                 messagebox.showerror(title="Error!", message="You must enter a correct Summoner name or refresh the"
@@ -788,9 +829,12 @@ Most Played Role: {main_role}\n
 
                 try:
 
-                    match_start = (match_detail_choixmatch["info"].get("gameEndTimestamp")) / 1000
-                    match_dat1 = datetime.fromtimestamp(match_start)
+                    match_end = (match_detail_choixmatch["info"].get("gameEndTimestamp")) / 1000
+                    match_dat1 = datetime.fromtimestamp(match_end)
                     match_date = match_dat1.strftime("%m/%d/%Y - %H:%M:%S")
+                    game_duration = round(match_detail_choixmatch['info']['gameDuration'] / 60)
+                    match_start = (match_detail_choixmatch["info"].get("gameStartTimestamp")) / 1000
+
                 except:
                     break
 
@@ -806,8 +850,10 @@ Most Played Role: {main_role}\n
                     else:
                         last_dict = last_dict | {key: value}
                 # print("test2", last_dict)
-                last_dict = last_dict | {'timestamp': match_start}
+                last_dict = last_dict | {'timestamp': match_end}
                 last_dict = last_dict | {'date': match_date}
+                last_dict = last_dict | {'gameduration': game_duration}
+                last_dict = last_dict | {'matchstart': match_start}
                 try:
                     if init:
                         for ele in last_dict.keys():
@@ -856,7 +902,7 @@ Most Played Role: {main_role}\n
                 self.puuid = me['puuid']
                 print(self.puuid)
                 puuid_liste=[self.puuid]
-                self.ajoutbase_reseau(puuid_liste,20)
+                self.ajoutbase_reseau(puuid_liste,10)
                 time.sleep(60 * 60)
 
 
@@ -910,13 +956,13 @@ Most Played Role: {main_role}\n
 
 
 
-    def buscar_Invocador(self):
+    def search_summoner(self):
         """Function that gets the last 20 games of the Summoner and adds them to the Listbox"""
         init = False
         self.my_region = self.combo.get()
         # self.text.get() = summonername
         if self.text.get() == "" or self.text.get().isspace() or self.combo.get() == "" or self.combo.get().isspace():
-            self.buscar_Invocador_list()
+            self.search_summoner_list()
         else:
             try:
                 print("")
@@ -1064,7 +1110,7 @@ Most Played Role: {main_role}\n
                 #             self.database.read_data_from_a_dict(last_dict, "summonerName", "timestamp")
                 #             init = True
                 #print("FIN")
-    def buscar_Invocador_list(self):
+    def search_summoner_list(self):
         """Function that gets the last 20 games of the Summoner in combo_players and adds them to the Listbox"""
 
         self.my_region = self.combo.get()
@@ -1454,7 +1500,7 @@ Most Played Role: {main_role}\n
                     self.window.clipboard_append(item['values'][0])
                     messagebox.showinfo(title="Info!", message="Copied succesfully!")
                 except IndexError:
-                    messagebox.showwarning(title="Atention!", message="You must make a selection.")
+                    messagebox.showwarning(title="Warning!", message="You must make a selection.")
 
             def opgg():
                 curItem = my_tree3.focus()
@@ -1494,7 +1540,7 @@ Most Played Role: {main_role}\n
                         region = 'ru'
                         webbrowser.open(f'https://{region}.op.gg/summoners/{region}/{item["values"][0]}')
                 else:
-                    messagebox.showwarning(title="Atention!", message="You must select an element.")
+                    messagebox.showwarning(title="Warning!", message="You must select an element.")
 
             def info():
                 curItem = my_tree3.focus()
@@ -1591,7 +1637,7 @@ Win Rate: {winrate}%
                 content = f.readlines()
             f.close()
         except FileNotFoundError:
-            messagebox.showwarning(title="Atención!", message="There are not recent searchs or"
+            messagebox.showwarning(title="Warning!", message="There are not recent searchs or"
                                                               " not 5 searches at least.")
         except UnicodeEncodeError:
             with open('summoners.txt', mode='r', encoding='euc_kr') as f:
@@ -1627,7 +1673,7 @@ Win Rate: {winrate}%
                 self.new_win4.deiconify()
 
             else:
-                messagebox.showwarning(title="Atención!", message="There are not 5 searches at least.")
+                messagebox.showwarning(title="Warning!", message="There are not 5 searches at least.")
 
     def double_click2(self, event):
         """Called when user double clicks element from ListBox"""
@@ -1723,7 +1769,7 @@ Win Rate: {winrate}%
                 region = 'ru'
                 webbrowser.open(f'https://{region}.op.gg/summoners/{region}/{item["values"][0]}')
         else:
-            messagebox.showwarning(title="Atention!", message="You must select an element.")
+            messagebox.showwarning(title="Warning!", message="You must select an element.")
 
 
 if __name__ == "__main__":

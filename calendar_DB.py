@@ -10,7 +10,7 @@ def init_calendar(name):
 
             root = Tk()
 
-            root.geometry("400x500")
+            root.geometry("400x600")
             style = ttk.Style(root)
             style.theme_use('clam')
             root.config(pady=10, padx=10, background='#2F2F2F')
@@ -84,3 +84,14 @@ def init_calendar(name):
 
             date = Label(root, text="",background='#2F2F2F',fg='white')
             date.pack(pady=20)
+            Label(root, text="entre 1 et 3 parties", background='#2F2F2F', fg='green').pack(pady=0)
+            Label(root, text="entre 3 et 5 parties", background='#2F2F2F', fg='orange').pack(pady=0)
+            Label(root, text="entre 5 et 10 parties", background='#2F2F2F', fg='red').pack(pady=0)
+            Label(root, text="Plus de 10 parties", background='#2F2F2F', fg='#845EC2').pack(pady=0)
+
+            def shutdown_ttk_repeat():
+                root.eval('::ttk::CancelRepeat')
+                root.withdraw()
+
+            root.protocol("WM_DELETE_WINDOW", shutdown_ttk_repeat)
+
