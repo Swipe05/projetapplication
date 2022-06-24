@@ -20,7 +20,7 @@ from interact_with_db import *
 from variable import every
 import time
 import matplotlib.pyplot as plt
-
+import customtkinter as ctkp
 
 
 dict_champions = {'Aatrox':0, 'Ahri':1 ,'Akali':1 , 'Akshan':0,'Alistar':0,'Amumu':0, 'Anivia':1, 'Annie':1, 'Aphelios':0, 'Ashe':1, 'AurelionSol':0, 'Azir':0 ,'Bard':0, 'Belveth':1,'Blitzcrank':0, 'Brand':0,'Braum':0,'Caitlyn':1,'Camille':1 ,'Cassiopeia':1 ,'Chogath':0, 'Corki':0, 'Darius':0,'Diana':1,'DrMundo':0,'Draven':0 ,'Ekko':0,'Elise':1, 'Evelynn':1,'Ezreal':0,'Fiddlesticks':0, 'Fiora':1, 'Fizz':0, 'Galio':0,'Gangplank':0,'Garen':0,'Gnar':0,'Gragas':0,'Graves':0,'Gwen':1,'Hecarim':0,'Heimerdinger':0,'Illaoi':0,'Irelia':1,'Ivern':0,'Janna':1,'JarvanIV':0 ,'Jax':0,'Jayce':0, 'Jhin':0,'Jinx':1,'Kaisa':1,'Kalista':1,'Karma':1,'Karthus':0,'Kassadin':0,'Katarina':1,'Kayle':1,'Kayn':0,'Kennen':0,'Khazix':0,'Kindred':0,'Kled':0,
@@ -125,14 +125,14 @@ class LoLInterface():
 
         # Treeview style
         self.style = ttk.Style()
-        self.style.configure("mystyle.Treeview.Heading", font=('Calibri', 14, 'bold'), foreground='blue')
-        self.style.configure("mystyle.Treeview", background="#b5c3f7", font=('Comic Sans MS', 11), rowheight=25,
-                             foreground='black', fieldbackground='#3e61de', highlightthickness=0, bd=0, )
+        self.style.configure("mystyle.Treeview.Heading", font=('Helvetica Neue', 14, 'bold'), foreground='blue')
+        self.style.configure("mystyle.Treeview", background="#b5c3f7", font=('Helvetica Neue', 11), rowheight=25,
+                             foreground='black', fieldbackground='#3e61de', highlightthickness=0, bd=2, )
         self.style.map('Treeview',
                        background=[('selected', 'blue')])
-        self.window.title("League of Legends Inspector")
+        self.window.title("League of Legends Data Miner")
         self.window.resizable(False, False)
-        self.window.config(pady=10, padx=10, background='#05061a')
+        self.window.config(pady=10, padx=10, background='#2F2F2F')
 
         # New window
         self.new_win = Toplevel(self.window)
@@ -169,17 +169,17 @@ class LoLInterface():
         # Listbox creation and configuration
         self.list = Listbox(justify=CENTER)
         self.list.config(borderwidth=2, activestyle=NONE, fg="white",
-                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
-                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
+                         bg="#2F2F2F", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
+                         selectbackground="#03052e", selectborderwidth=0, selectmode=SINGLE,
                          highlightbackground='#313cf7', highlightcolor='#2029c7')
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
         # Scrollbar creation for Listbox
         self.list = Listbox(justify=CENTER)
         self.list.config(borderwidth=2, activestyle=NONE, fg="white",
-                         bg="#1d238c", font=("Arial", 15, "bold"), selectforeground="#03f8fc",
-                         selectbackground="#03052e", selectborderwidth=2, selectmode=SINGLE,
-                         highlightbackground='#313cf7', highlightcolor='#2029c7')
+                         bg="#464453", font=("Arial", 15, "bold"), selectforeground="#007956",
+                         selectbackground="#2F2F2F", selectborderwidth=0, selectmode=SINGLE,
+                         highlightbackground='#2F2F2F', highlightcolor='#005242')
         self.list.grid(row=1, column=0, columnspan=2, pady=10, sticky=EW)
 
         # Scrollbar creation for Listbox
@@ -189,69 +189,119 @@ class LoLInterface():
         self.scroll.config(command=self.list.yview)
 
         # Labels, Entries and Buttons...
-        self.label = Label(text="Summoner name: ",
-                           font=('Comic Sans MS', 15, 'bold'), background='#05061a', foreground='#0f1adb')
+        self.label = ctkp.CTkLabel(text="Summoner name: ",
+                                   text_font=('Helvetica Neue', 15, 'bold'), background='#05061a', foreground='#0f1adb',
+                                   text_color='white')
         self.label.grid(row=2, column=0)
-        self.text = Entry(justify=CENTER, font=('Comic Sans MS', 13, 'bold'), foreground='black',
-                          background='white', insertbackground='blue')
+        self.text = ctkp.CTkEntry(justify=CENTER, text_font=('Helvetica Neue', 13, 'bold'), foreground='black',
+                                  background='white', insertbackground='blue')
         self.text.grid(row=2, column=1)
-        self.clear_entry = Button(text='Clear', command=self.clear, font=('Comic Sans MS', 10, 'bold'),
-                                  background='#858aed', width=10)
+        self.clear_entry = ctkp.CTkButton(width=50,
+                                          height=10, text_font=('Helvetica Neue', 9, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="Clear", command=self.clear,
+                                          background='#BBF287', text_color='white', border_color='#005A34',
+                                          hover_color='#005A34')
         self.clear_entry.grid(row=3, column=1)
-        self.buscar_btn = Button(text="Show 100 last game", command=self.buscar_Invocador,
-                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.build_truc = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Creation reseau et database", command=self.run_db_scan,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
+        self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
+        self.build_truc2 = ctkp.CTkButton(width=150,
+                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="Stats", command=self.graph_games_by_freq,
+                                          background='#BBF287', text_color='white', border_color='#005A34',
+                                          hover_color='#005A34')
+        self.build_truc2.grid(row=13, column=0, sticky=EW, columnspan=3)
+
+        self.addaperson = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Add one person to database", command=self.run_db_scan2,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
+        self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3, pady=10)
+        self.buscar_btn = ctkp.CTkButton(width=150,
+                                         height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                         border_width=3,
+                                         corner_radius=8,
+                                         text="Show Last 100 Games", command=self.buscar_Invocador,
+                                         background='#BBF287', text_color='white', border_color='#005A34',
+                                         hover_color='#005A34')
         self.buscar_btn.grid(row=11, column=0, sticky=EW, columnspan=3, pady=10)
-        self.buscar_btn_list = Button(text="Show stat for summoners in list", command=self.buscar_Invocador_list,
-                                      font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.buscar_btn_list = ctkp.CTkButton(width=150,
+                                              height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                              border_width=3,
+                                              corner_radius=8,
+                                              text="Show stat for summoners in list",
+                                              command=self.buscar_Invocador_list,
+                                              background='#BBF287', text_color='white', border_color='#005A34',
+                                              hover_color='#005A34')
         self.buscar_btn_list.grid(row=9, column=0, sticky=EW, columnspan=3, pady=10)
-        self.view_ranked = Button(text="View ranked info", command=self.view_ranked_info,
-                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.view_ranked = ctkp.CTkButton(width=185,
+                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="View ranked info", command=self.view_ranked_info, background='#858aed',
+                                          text_color='white', border_color='#005A34', hover_color='#005A34')
         self.view_ranked.grid(row=8, column=0, sticky=W, columnspan=3)
-        self.region_label = Label(text="Player region: ", font=('Comic Sans MS', 15, 'bold'),
-                                  background='#05061a', foreground='#0f1adb')
-        self.player_list_label = Label(text="Player list: ", font=('Comic Sans MS', 15, 'bold'),
-                                       background='#05061a', foreground='#0f1adb')
+        self.region_label = ctkp.CTkLabel(text="Player region: ", text_font=('Helvetica Neue', 15, 'bold'),
+                                          background='#05061a', foreground='#0f1adb', text_color='white')
+        self.player_list_label = ctkp.CTkLabel(text="Player list: ", text_font=('Helvetica Neue', 15, 'bold'),
+                                               background='#05061a', foreground='#0f1adb', text_color='white')
         self.region_label.grid(row=4, column=0, sticky=E)
         self.player_list_label.grid(row=5, column=0, sticky=E)
 
         # Combobox to select the Summoner region
         self.combo = ttk.Combobox(self.window, state="readonly",
                                   values=['EUW1', 'BR1', 'EUN1', 'JP1', 'KR', 'LA1', 'LA2', 'NA1',
-                                          'OC1', 'TR1', 'RU'], font=('Comic Sans MS', 10, 'bold'),
+                                          'OC1', 'TR1', 'RU'], font=('Helvetica Neue', 10, 'bold'),
                                   justify=CENTER)
         with open('players_list.txt') as inFile:
             players = [line for line in inFile]
         self.combo_player = ttk.Combobox(self.window, state="readonly",
-                                         values=tuple(players), font=('Comic Sans MS', 10, 'bold'),
+                                         values=tuple(players), font=('Helvetica Neue', 10, 'bold'),
                                          justify=CENTER, postcommand=self.updatecblist)
 
         self.combo_player.grid(row=5, column=1, pady=10, sticky=W)
         self.combo.grid(row=4, column=1, pady=10, sticky=W)
 
-        self.last_20 = Label(text="Last 20 games of", font=('Comic Sans MS', 14, 'bold'), background='#05061a',
-                             foreground='#0f1adb')
+        self.last_20 = ctkp.CTkLabel(text="Last 20 games of", text_font=('Helvetica Neue', 14, 'bold'),
+                                     background='#05061a',
+                                     foreground='#0f1adb', text_color='white')
         self.last_20.grid(row=0, column=0, columnspan=2)
-        self.view_active = Button(text="View active game", command=self.thread,
-                                  font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.view_active = ctkp.CTkButton(width=150,
+                                          height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                          border_width=3,
+                                          corner_radius=8,
+                                          text="View active game", command=self.thread,
+                                          background='#BBF287', text_color='white', border_color='#005A34',
+                                          hover_color='#005A34')
         # self.view_active.grid(row=7, column=0, sticky=EW, pady=10, columnspan=3)
-        self.top_p = Button(text="Delete Database", command=self.delete_alltables,
-                            font=('Comic Sans MS', 14, 'bold'), background='#858aed')
+        self.top_p = ctkp.CTkButton(width=150,
+                                    height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                    border_width=3,
+                                    corner_radius=8,
+                                    text="Stats", command=self.graph_games_by_freq,
+                                    background='#BBF287', text_color='white', border_color='#005A34',
+                                    hover_color='#005A34')
         self.top_p.grid(row=10, column=0, sticky=EW, columnspan=3)
-        self.build_truc = Button(text="Creation reseau et database", command=self.run_db_scan,
-                            font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.build_truc.grid(row=6, column=0, sticky=EW, columnspan=3)
-
-        self.build_truc = Button(text="Stats", command=self.graph_games_by_freq,
-                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.build_truc.grid(row=13, column=0, sticky=EW, columnspan=3)
-
-        self.addaperson = Button(text="Add one person to database", command=self.run_db_scan2,
-                                 font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.addaperson.grid(row=7, column=0, sticky=EW, columnspan=3)
-
-        self.loadbtn = Button(text="Show Calendar", command=self.make_calendar,
-                              font=('Comic Sans MS', 14, 'bold'), background='#858aed')
-        self.loadbtn.grid(row=8, column=1, sticky=EW, columnspan=3, pady=10)
+        self.loadbtn = ctkp.CTkButton(width=185,
+                                      height=50, text_font=('Helvetica Neue', 12, 'bold'), fg_color=("#2F2F2F"),
+                                      border_width=3,
+                                      corner_radius=8,
+                                      text="Show Calendar", command=self.make_calendar,
+                                      background='#BBF287', text_color='white', border_color='#005A34',
+                                      hover_color='#005A34')
+        self.loadbtn.grid(row=8, column=1, sticky=E, columnspan=3, pady=10)
         self.listbox = Listbox(self.new_win4, justify=CENTER)
 
         self.selection = 0
@@ -262,6 +312,7 @@ class LoLInterface():
 
         self.listesansdoublon = []
         self.window.mainloop()
+
 
     def make_calendar(self):
 
